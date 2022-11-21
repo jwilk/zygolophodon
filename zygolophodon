@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+
+# Copyright © 2022 Jakub Wilk <jwilk@jwilk.net>
+# SPDX-License-Identifier: MIT
+
+import argparse
+import io
+import json
+import re
+import signal
+import urllib.parse
+import urllib.request
+
+import html2text
+
+0_0  # Python >= 3.6 is required
+
+user_agent = 'zygolophodon (https://github.com/jwilk/zygolophodon)'
+
+def wget(url):
+    headers = {'User-Agent': user_agent}
+    request = urllib.request.Request(url, headers=headers)
+    return urllib.request.urlopen(request)
+
+def wget_json(url):
+    with wget(url) as fp:
+        with io.TextIOWrapper(fp, encoding='UTF-8') as tfp:
+            return json.load(tfp, object_hook=DictProxy)
+
+class DictProxy(object):
+
+    def __init__(self, d):
+        self._d = d
+
+    def __getattr__(self, attr):
+        return self._d[attr]
+
+def strip_url_fragment(url):
+    tup = urllib.parse.urlsplit(url)
+    tup = tup._replace(fragment='')
+    return urllib.parse.urlunsplit(tup)
+
+def fmt_user(account):
+    return f'{account.display_name} <{account.url}>'
+
+def fmt_date(d):
+    d = re.sub(r'[.]\d+', '', d)
+    d = d.replace('T', ' ')
+    return d
+
+html_converter = html2text.HTML2Text()
+html_converter.unicode_snob = True
+
+def fmt_html(html):
+    text = html_converter.handle(html)
+    return text.strip('\n')
+
+def print_post(post):
+    print('Location:', post.url)
+    print('From:', fmt_user(post.account))
+    print('Date:', fmt_date(post.created_at))
+    print()
+    print(fmt_html(post.content))
+
+def xmain():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('url', metavar='URL')
+    opts = ap.parse_args()
+    url = strip_url_fragment(opts.url)
+    match = re.match(r'\Ahttps://([^/]+)/@[^/]+/([0-9]+)\Z', url)
+    if not match:
+        ap.error('unsupported URL')
+    (domain, ident) = match.groups()
+    api = f'https://{domain}/api/v1'
+    post = wget_json(f'{api}/statuses/{ident}')
+    print_post(post)
+    context = wget_json(f'{api}/statuses/{ident}/context')
+    for post in context.descendants:
+        print()
+        print('-' * 72)
+        print()
+        print_post(post)
+
+def main():
+    try:
+        xmain()
+    except BrokenPipeError:
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+        signal.raise_signal(signal.SIGPIPE)
+        raise
+
+if __name__ == '__main__':
+    main()
+
+# vim:ts=4 sts=4 sw=4 et
