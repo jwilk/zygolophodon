@@ -41,7 +41,7 @@ def strip_url_fragment(url):
     return urllib.parse.urlunsplit(tup)
 
 def fmt_user(account):
-    return f'{account.display_name} <{account.url}>'
+    return f'{account.display_name} <{account.url}>'.lstrip()
 
 def fmt_date(d):
     d = re.sub(r'[.]\d+', '', d)
