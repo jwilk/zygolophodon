@@ -102,8 +102,13 @@ def print_post(post, *, pinned=False):
     print('Date:', fmt_date(post.created_at))
     if post.language is not None and post.language != 'en':
         print('Language:', post.language)
+    if post.reblog:
+        print('Reblog: yes')
     print()
-    print(fmt_html(post.content))
+    if post.reblog:
+        print_post(post.reblog)
+    else:
+        print(fmt_html(post.content))
 
 def main():
     try:
