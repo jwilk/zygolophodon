@@ -66,11 +66,17 @@ def xmain():
     if not match:
         ap.error('unsupported URL')
     (domain, ident) = match.groups()
+    process_status(domain, ident)
+
+def process_status(domain, ident):
     api = f'https://{domain}/api/v1'
     post = wget_json(f'{api}/statuses/{ident}')
     print_post(post)
     context = wget_json(f'{api}/statuses/{ident}/context')
-    for post in context.descendants:
+    print_statuses(context.descendants)
+
+def print_statuses(statuses):
+    for post in statuses:
         print()
         print('-' * 72)
         print()
