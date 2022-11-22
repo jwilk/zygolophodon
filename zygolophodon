@@ -43,11 +43,11 @@ def fmt_date(d):
     d = d.replace('T', ' ')
     return d
 
-html_converter = html2text.HTML2Text()
-html_converter.unicode_snob = True
-
 def fmt_html(html):
-    text = html_converter.handle(html)
+    html2md = html2text.HTML2Text()
+    html2md.unicode_snob = True
+    html2md.body_width = 999999
+    text = html2md.handle(html)
     return text.strip('\n')
 
 def xmain():
