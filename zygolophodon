@@ -35,11 +35,6 @@ class DictProxy(object):
     def __getattr__(self, attr):
         return self._d[attr]
 
-def strip_url_fragment(url):
-    tup = urllib.parse.urlsplit(url)
-    tup = tup._replace(fragment='')
-    return urllib.parse.urlunsplit(tup)
-
 def fmt_user(account):
     return f'{account.display_name} <{account.url}>'.lstrip()
 
@@ -66,7 +61,7 @@ def xmain():
     ap = argparse.ArgumentParser()
     ap.add_argument('url', metavar='URL')
     opts = ap.parse_args()
-    url = strip_url_fragment(opts.url)
+    url, _ = urllib.parse.urldefrag(opts.url)
     match = re.match(r'\Ahttps://([^/]+)/@[^/]+/([0-9]+)\Z', url)
     if not match:
         ap.error('unsupported URL')
