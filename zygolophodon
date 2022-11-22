@@ -100,6 +100,8 @@ def print_post(post, *, pinned=False):
         print('Pinned: yes')
     print('From:', fmt_user(post.account))
     print('Date:', fmt_date(post.created_at))
+    if post.language is not None and post.language != 'en':
+        print('Language:', post.language)
     print()
     print(fmt_html(post.content))
 
