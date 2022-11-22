@@ -50,13 +50,6 @@ def fmt_html(html):
     text = html_converter.handle(html)
     return text.strip('\n')
 
-def print_post(post):
-    print('Location:', post.url)
-    print('From:', fmt_user(post.account))
-    print('Date:', fmt_date(post.created_at))
-    print()
-    print(fmt_html(post.content))
-
 def xmain():
     ap = argparse.ArgumentParser()
     ap.add_argument('url', metavar='URL')
@@ -81,6 +74,13 @@ def print_statuses(statuses):
         print('-' * 72)
         print()
         print_post(post)
+
+def print_post(post):
+    print('Location:', post.url)
+    print('From:', fmt_user(post.account))
+    print('Date:', fmt_date(post.created_at))
+    print()
+    print(fmt_html(post.content))
 
 def main():
     try:
