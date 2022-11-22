@@ -51,7 +51,10 @@ def fmt_html(html):
     return text.strip('\n')
 
 def xmain():
-    ap = argparse.ArgumentParser()
+    urls = ['@USER', '@USER/NNNNNN']
+    urls = [f'https://DOMAIN/{url}' for url in urls]
+    epilog = 'supported URLs:\n' + str.join('\n', [f'  {url}' for url in urls])
+    ap = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('url', metavar='URL')
     opts = ap.parse_args()
     url, _ = urllib.parse.urldefrag(opts.url)
