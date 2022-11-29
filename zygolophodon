@@ -139,7 +139,9 @@ def print_post(post, *, pinned=False):
     if post.reblog:
         print_post(post.reblog)
     else:
-        print(fmt_html(post.content))
+        text = fmt_html(post.content)
+        if text:
+            print(text)
 
 def main():
     try:
