@@ -126,13 +126,20 @@ def print_statuses(statuses, *, pinned=False):
         print()
         print_post(post, pinned=pinned)
 
+def normalize_lang(lang):
+    if lang is None:
+        return 'en'
+    if lang.startswith('en-'):
+        return 'en'
+    return lang
+
 def print_post(post, *, pinned=False):
     print('Location:', post.url)
     if pinned:
         print('Pinned: yes')
     print('From:', fmt_user(post.account))
     print('Date:', fmt_date(post.created_at))
-    if post.language is not None and post.language != 'en':
+    if normalize_lang(post.language) != 'en':
         print('Language:', post.language)
     if post.reblog:
         print('Reblog: yes')
