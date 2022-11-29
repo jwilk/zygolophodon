@@ -4,10 +4,13 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
+import builtins
+import functools
 import io
 import json
 import re
 import signal
+import sys
 import urllib.parse
 import urllib.request
 
@@ -15,17 +18,33 @@ import html2text
 
 0_0  # Python >= 3.6 is required
 
+# Let's trick http.client into writing debugging stuff to stderr, not stdout.
+print = functools.partial(builtins.print, file=sys.stdout)  # pylint: disable=redefined-builtin
+sys.stdout = sys.stderr
+
 class UserAgent():
 
     headers = {
         'User-Agent': 'zygolophodon (https://github.com/jwilk/zygolophodon)',
     }
+    debug_level = 0
+
+    @classmethod
+    def _build_opener(cls):
+        # TODO: Get rid of this function once
+        # <https://github.com/python/cpython/issues/99352> is fixed.
+        handlers = [
+            Handler(debuglevel=cls.debug_level)
+            for Handler in [urllib.request.HTTPHandler, urllib.request.HTTPSHandler]
+        ]
+        return urllib.request.build_opener(*handlers)
 
     @classmethod
     def get(cls, url):
         headers = dict(cls.headers)
         request = urllib.request.Request(url, headers=headers)
-        return urllib.request.urlopen(request)
+        opener = cls._build_opener()
+        return opener.open(request)
 
     @classmethod
     def get_json(cls, url):
@@ -64,8 +83,11 @@ def xmain():
     urls = [f'https://DOMAIN/{url}' for url in urls]
     epilog = 'supported URLs:\n' + str.join('\n', [f'  {url}' for url in urls])
     ap = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     ap.add_argument('url', metavar='URL')
     opts = ap.parse_args()
+    if opts.debug:
+        UserAgent.debug_level = 1
     url, _ = urllib.parse.urldefrag(opts.url)
     match = re.match(r'\Ahttps://([^/]+)/@([^/]+)(?:/([0-9]+)\Z)?', url)
     if not match:
