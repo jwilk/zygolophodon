@@ -11,6 +11,7 @@ import json
 import re
 import signal
 import sys
+import textwrap
 import urllib.parse
 import urllib.request
 
@@ -136,11 +137,22 @@ def print_post(post, *, pinned=False):
     if post.reblog:
         print('Reblog: yes')
     print()
+    sep = ''
+    for att in post.media_attachments or ():
+        print('*', att.url)
+        text = att.description
+        if text:
+            text = textwrap.indent(att.description, '  ')
+            print()
+            print(text)
+        sep = '\n'
     if post.reblog:
+        print(sep, end='')
         print_post(post.reblog)
     else:
         text = fmt_html(post.content)
         if text:
+            print(sep, end='')
             print(text)
 
 def main():
