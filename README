@@ -22,7 +22,6 @@ Example
 .. code:: console
 
    $ zygolophodon https://mastodon.social/@Foone/109332182249838078
-
    Location: https://mastodon.social/@Foone/109332182249838078
    From: Foone <https://mastodon.social/@Foone>
    Date: 2022-11-12 18:11:46Z
