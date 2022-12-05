@@ -156,10 +156,12 @@ def print_post(post, *, pinned=False):
         print('*', att.url)
         text = att.description
         if text:
-            text = textwrap.indent(att.description, '  ')
+            text = wrap_text(text, indent='  ')
             print()
-            print(text)
-        sep = '\n'
+            for line in text:
+                print(sep, end='')
+                print(line)
+                sep = '\n'
     if post.reblog:
         print(sep, end='')
         print_post(post.reblog)
@@ -168,6 +170,16 @@ def print_post(post, *, pinned=False):
         if text:
             print(sep, end='')
             print(text)
+
+def wrap_text(text, indent=''):
+    text = text.splitlines()
+    for line in text:
+        line = textwrap.wrap(line,
+            width=html2text.config.BODY_WIDTH,
+            initial_indent=indent,
+            subsequent_indent=indent,
+        )
+        yield str.join('\n', line)
 
 def main():
     try:
