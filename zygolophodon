@@ -6,7 +6,7 @@
 import argparse
 import builtins
 import functools
-import io
+import gzip
 import json
 import re
 import signal
@@ -27,6 +27,7 @@ class UserAgent():
 
     headers = {
         'User-Agent': 'zygolophodon (https://github.com/jwilk/zygolophodon)',
+        'Accept-Encoding': 'gzip',
     }
     debug_level = 0
 
@@ -45,13 +46,20 @@ class UserAgent():
         headers = dict(cls.headers)
         request = urllib.request.Request(url, headers=headers)
         opener = cls._build_opener()
-        return opener.open(request)
+        with opener.open(request) as fp:
+            content_encoding = fp.getheader('Content-Encoding', 'identity')
+            data = fp.read()
+        if content_encoding == 'gzip':
+            return gzip.decompress(data)
+        elif content_encoding == 'identity':
+            return data
+        else:
+            raise RuntimeError(f'unexpected Content-Encoding: {content_encoding!r}')
 
     @classmethod
     def get_json(cls, url):
-        with cls.get(url) as fp:
-            with io.TextIOWrapper(fp, encoding='UTF-8') as tfp:
-                return json.load(tfp, object_hook=DictProxy)
+        data = cls.get(url)
+        return json.loads(data, object_hook=DictProxy)
 
 wget = UserAgent.get
 wget_json = UserAgent.get_json
