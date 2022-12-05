@@ -121,7 +121,7 @@ def process_status(domain, ident):
 def print_statuses(statuses, *, pinned=False):
     for post in statuses:
         print()
-        print('-' * 72)
+        print('-' * html2text.config.BODY_WIDTH)
         print()
         print_post(post, pinned=pinned)
 
