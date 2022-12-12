@@ -151,24 +151,22 @@ def print_post(post, *, pinned=False):
     if post.reblog:
         print('Reblog: yes')
     print()
-    sep = ''
     for att in post.media_attachments or ():
         print('*', att.url)
-        text = att.description
+        print()
+        text = att.description or ''
+        text = wrap_text(text, indent='  ')
         if text:
-            text = wrap_text(text, indent='  ')
-            print()
+            sep = ''
             for line in text:
-                print(sep, end='')
                 print(line)
                 sep = '\n'
+            print(end=sep)
     if post.reblog:
-        print(sep, end='')
         print_post(post.reblog)
     else:
         text = fmt_html(post.content)
         if text:
-            print(sep, end='')
             print(text)
 
 def wrap_text(text, indent=''):
