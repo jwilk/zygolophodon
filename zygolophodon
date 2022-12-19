@@ -4,13 +4,17 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
+import contextlib
 import gzip
 import http.client
 import inspect
 import io
 import json
+import os
 import re
+import shutil
 import signal
+import subprocess
 import sys
 import textwrap
 import urllib.parse
@@ -20,21 +24,50 @@ import html2text
 
 0_0  # Python >= 3.6 is required
 
+prog = argparse.ArgumentParser().prog
+
+def find_command(command):
+    if shutil.which(command):
+        return command
+
+def fatal(msg):
+    print(f'{prog}: {msg}', file=sys.stderr)
+    sys.exit(1)
+
 class StdOut(io.TextIOBase):
+
+    def _install_pager(self):
+        if not sys.__stdout__.isatty():
+            return
+        cmdline = (os.environ.get('PAGER')
+            or find_command('pager')  # Debian <https://www.debian.org/doc/debian-policy/ch-customized-programs.html#editors-and-pagers>
+            or 'more'  # POSIX <https://pubs.opengroup.org/onlinepubs/007904975/utilities/man.html#tag_04_85_08>
+        )
+        if cmdline == 'cat':
+            return
+        env = None
+        if 'LESS' not in os.environ:
+            env = dict(env or os.environ, LESS='-FXK')
+        self._pager = subprocess.Popen(cmdline, shell=True, stdin=subprocess.PIPE, env=env)
+        encoding = sys.__stdout__.encoding
+        self._stdout = io.TextIOWrapper(self._pager.stdin, encoding=encoding, line_buffering=True)
 
     def __init__(self):
         self._newlines = 0
+        self._pager = None
+        self._stdout = sys.__stdout__
+        self._install_pager()
 
     def _get_fp(self):
         for frameinfo in inspect.stack(context=0):
             if frameinfo.filename == http.client.__file__:
                 # Redirect http.client's debug messages to stderr.
                 return sys.__stderr__
-        return sys.__stdout__
+        return self._stdout
 
     def write(self, s):
         fp = self._get_fp()
-        if fp is sys.__stdout__:
+        if fp is self._stdout:
             if s == '':
                 return
             if s == '\n':
@@ -47,6 +80,24 @@ class StdOut(io.TextIOBase):
 
     def flush(self):
         self._get_fp().flush()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self._pager:
+            self._pager.__exit__(exc_type, exc_value, traceback)
+            if exc_type is None and self._pager.returncode != 0:
+                raise RuntimeError('pager failed')
+            self._pager = None
+            self._stdout = None
+
+    @staticmethod
+    @contextlib.contextmanager
+    def install():
+        assert sys.stdout is sys.__stdout__
+        try:
+            with StdOut() as sys.stdout:
+                yield
+        finally:
+            sys.stdout = sys.__stdout__
 
 class UserAgent():
 
@@ -128,12 +179,12 @@ def xmain():
     if not match:
         ap.error('unsupported URL')
     sys.stdout.flush()
-    sys.stdout = StdOut()
-    (domain, account, ident, with_replies, media) = match.groups()
-    if ident is None:
-        process_user(domain, account, replies=bool(with_replies), media=bool(media))
-    else:
-        process_status(domain, ident)
+    with StdOut.install():
+        (domain, account, ident, with_replies, media) = match.groups()
+        if ident is None:
+            process_user(domain, account, replies=bool(with_replies), media=bool(media))
+        else:
+            process_status(domain, ident)
 
 def process_user(domain, account, *, replies=False, media=False):
     api = f'https://{domain}/api/v1'
