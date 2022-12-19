@@ -31,9 +31,11 @@ jobs:
     - name: install deps
       run: |
         python3 -m pip install html2text
-    - name: smoke test
+    - name: run tests
       run: |
-        ./zygolophodon --help
+        prove -v
+    - name: network test
+      run: |
         ./zygolophodon https://mastodon.social/@Foone/109332182249838078
     - name: run pydiatra
       run: |
