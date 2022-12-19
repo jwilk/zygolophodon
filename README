@@ -7,16 +7,13 @@ Usage
    usage: zygolophodon [-h] URL
 
    positional arguments:
-     URL
+     URL         https://DOMAIN/@USER
+                 https://DOMAIN/@USER/with_replies
+                 https://DOMAIN/@USER/media
+                 https://DOMAIN/@USER/NNNNNN
 
    options:
      -h, --help  show this help message and exit
-
-   supported URLs:
-     https://DOMAIN/@USER
-     https://DOMAIN/@USER/with_replies
-     https://DOMAIN/@USER/media
-     https://DOMAIN/@USER/NNNNNN
 
 Example
 =======

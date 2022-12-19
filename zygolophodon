@@ -114,13 +114,12 @@ def fmt_html(html):
 def xmain():
     urls = ['@USER', '@USER/with_replies', '@USER/media', '@USER/NNNNNN']
     urls = [f'https://DOMAIN/{url}' for url in urls]
-    epilog = 'supported URLs:\n' + str.join('\n', [f'  {url}' for url in urls])
-    ap = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     if sys.version_info < (3, 10):
         # https://bugs.python.org/issue9694
         ap._optionals.title = 'options'
     ap.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
-    ap.add_argument('url', metavar='URL')
+    ap.add_argument('url', metavar='URL', help=str.join('\n', urls))
     opts = ap.parse_args()
     if opts.debug:
         UserAgent.debug_level = 1
