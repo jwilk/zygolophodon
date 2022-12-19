@@ -59,10 +59,11 @@ class StdOut(io.TextIOBase):
         self._install_pager()
 
     def _get_fp(self):
-        for frameinfo in inspect.stack(context=0):
-            if frameinfo.filename == http.client.__file__:
-                # Redirect http.client's debug messages to stderr.
-                return sys.__stderr__
+        if UserAgent.debug_level:
+            for frameinfo in inspect.stack(context=0):
+                if frameinfo.filename == http.client.__file__:
+                    # Redirect http.client's debug messages to stderr.
+                    return sys.__stderr__
         return self._stdout
 
     def write(self, s):
