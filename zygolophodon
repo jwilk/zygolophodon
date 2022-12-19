@@ -124,8 +124,9 @@ def process_user(domain, account):
     q_account = urllib.parse.quote(account)
     user = wget_json(f'{api}/accounts/lookup?acct={q_account}')
     print('User:', fmt_user(user))
-    print()
-    print(fmt_html(user.note))
+    if user.note:
+        print()
+        print(fmt_html(user.note))
     url = f'{api}/accounts/{user.id}/statuses';
     statuses = wget_json(f'{url}?pinned=true')
     print_statuses(statuses, pinned=True)
