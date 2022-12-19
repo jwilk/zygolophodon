@@ -127,6 +127,7 @@ def xmain():
     match = re.fullmatch(r'https://([^/]+)/@([^/]+)(?:/([0-9]+)|/(with_replies)|/(media))?', url)
     if not match:
         ap.error('unsupported URL')
+    sys.stdout.flush()
     sys.stdout = StdOut()
     (domain, account, ident, with_replies, media) = match.groups()
     if ident is None:
