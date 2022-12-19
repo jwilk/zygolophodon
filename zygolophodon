@@ -148,6 +148,7 @@ def process_user(domain, account, *, replies=False, media=False):
     else:
         no_replies = str(not replies).lower()
         url += f'?exclude_replies={no_replies}'
+    url += '&limit=40'
     statuses = wget_json(url)
     print_statuses(statuses)
 
