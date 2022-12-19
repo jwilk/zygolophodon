@@ -4,9 +4,10 @@
 # SPDX-License-Identifier: MIT
 
 import argparse
-import builtins
-import functools
 import gzip
+import http.client
+import inspect
+import io
 import json
 import re
 import signal
@@ -19,9 +20,20 @@ import html2text
 
 0_0  # Python >= 3.6 is required
 
-# Let's trick http.client into writing debugging stuff to stderr, not stdout.
-print = functools.partial(builtins.print, file=sys.stdout)  # pylint: disable=redefined-builtin
-sys.stdout = sys.stderr
+class StdOut(io.TextIOBase):
+
+    def _get_fp(self):
+        for frameinfo in inspect.stack():
+            if frameinfo.filename == http.client.__file__:
+                # Redirect http.client's debug messages to stderr.
+                return sys.__stderr__
+        return sys.__stdout__
+
+    def write(self, s):
+        self._get_fp().write(s)
+
+    def flush(self):
+        self._get_fp().flush()
 
 class UserAgent():
 
@@ -100,6 +112,7 @@ def xmain():
     match = re.match(r'\Ahttps://([^/]+)/@([^/]+)(?:/([0-9]+)\Z)?', url)
     if not match:
         ap.error('unsupported URL')
+    sys.stdout = StdOut()
     (domain, account, ident) = match.groups()
     if ident is None:
         process_user(domain, account)
