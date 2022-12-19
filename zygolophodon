@@ -152,6 +152,7 @@ def process_user(domain, account, *, replies=False, media=False):
         no_replies = str(not replies).lower()
         url += f'?exclude_replies={no_replies}'
     url += '&limit=40'
+    # TODO: make limit configurable
     # TODO: implement paging
     statuses = wget_json(url)
     print_statuses(statuses)
