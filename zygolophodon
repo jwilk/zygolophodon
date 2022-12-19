@@ -109,7 +109,7 @@ def xmain():
     if opts.debug:
         UserAgent.debug_level = 1
     url, _ = urllib.parse.urldefrag(opts.url)
-    match = re.fullmatch(r'\Ahttps://([^/]+)/@([^/]+)(?:/([0-9]+)\Z)?', url)
+    match = re.fullmatch(r'https://([^/]+)/@([^/]+)(?:/([0-9]+))?', url)
     if not match:
         ap.error('unsupported URL')
     sys.stdout = StdOut()
