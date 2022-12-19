@@ -82,6 +82,11 @@ class StdOut(io.TextIOBase):
     def flush(self):
         self._get_fp().flush()
 
+    def isatty(self):
+        if self._pager is not None:
+            return 'pager'
+        return False
+
     def __exit__(self, exc_type, exc_value, traceback):
         if self._pager:
             self._pager.__exit__(exc_type, exc_value, traceback)
@@ -149,8 +154,13 @@ class DictProxy(object):
     def __getattr__(self, attr):
         return self._d[attr]
 
+def fmt_url(url):
+    if sys.stdout.isatty() == 'pager':
+        return re.sub('(.)', r'_\b\1', url)
+    return url
+
 def fmt_user(account):
-    return f'{account.display_name} <{account.url}>'.lstrip()
+    return f'{account.display_name} <{fmt_url(account.url)}>'.lstrip()
 
 def fmt_date(d):
     d = re.sub(r'[.]\d+', '', d)
@@ -231,7 +241,7 @@ def normalize_lang(lang):
     return lang
 
 def print_post(post, *, pinned=False):
-    print('Location:', post.url)
+    print('Location:', fmt_url(post.url))
     if pinned:
         print('Pinned: yes')
     print('From:', fmt_user(post.account))
@@ -242,7 +252,7 @@ def print_post(post, *, pinned=False):
         print('Reblog: yes')
     print()
     for att in post.media_attachments or ():
-        print('*', att.url)
+        print('*', fmt_url(att.url))
         print()
         text = att.description or ''
         text = wrap_text(text, indent='  ')
