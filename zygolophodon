@@ -99,7 +99,7 @@ def fmt_html(html):
     return text.strip('\n')
 
 def xmain():
-    urls = ['@USER', '@USER/NNNNNN']
+    urls = ['@USER', '@USER/with_replies', '@USER/NNNNNN']
     urls = [f'https://DOMAIN/{url}' for url in urls]
     epilog = 'supported URLs:\n' + str.join('\n', [f'  {url}' for url in urls])
     ap = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -109,17 +109,17 @@ def xmain():
     if opts.debug:
         UserAgent.debug_level = 1
     url, _ = urllib.parse.urldefrag(opts.url)
-    match = re.fullmatch(r'https://([^/]+)/@([^/]+)(?:/([0-9]+))?', url)
+    match = re.fullmatch(r'https://([^/]+)/@([^/]+)(?:/([0-9]+)|/(with_replies))?', url)
     if not match:
         ap.error('unsupported URL')
     sys.stdout = StdOut()
-    (domain, account, ident) = match.groups()
+    (domain, account, ident, with_replies) = match.groups()
     if ident is None:
-        process_user(domain, account)
+        process_user(domain, account, replies=bool(with_replies))
     else:
         process_status(domain, ident)
 
-def process_user(domain, account):
+def process_user(domain, account, *, replies=False):
     api = f'https://{domain}/api/v1'
     q_account = urllib.parse.quote(account)
     user = wget_json(f'{api}/accounts/lookup?acct={q_account}')
@@ -130,7 +130,8 @@ def process_user(domain, account):
     url = f'{api}/accounts/{user.id}/statuses';
     statuses = wget_json(f'{url}?pinned=true')
     print_statuses(statuses, pinned=True)
-    statuses = wget_json(f'{url}?exclude_replies=true')
+    no_replies = str(not replies).lower()
+    statuses = wget_json(f'{url}?exclude_replies={no_replies}')
     print_statuses(statuses)
 
 def process_status(domain, ident):

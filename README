@@ -14,6 +14,7 @@ Usage
 
    supported URLs:
      https://DOMAIN/@USER
+     https://DOMAIN/@USER/with_replies
      https://DOMAIN/@USER/NNNNNN
 
 Example
