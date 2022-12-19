@@ -60,9 +60,9 @@ class StdOut(io.TextIOBase):
 
     def _get_fp(self):
         if UserAgent.debug_level:
+            # Redirect http.client's debug messages to stderr:
             for frameinfo in inspect.stack(context=0):
                 if frameinfo.filename == http.client.__file__:
-                    # Redirect http.client's debug messages to stderr.
                     return sys.__stderr__
         return self._stdout
 
