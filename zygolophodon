@@ -22,6 +22,9 @@ import html2text
 
 class StdOut(io.TextIOBase):
 
+    def __init__(self):
+        self._newlines = 0
+
     def _get_fp(self):
         for frameinfo in inspect.stack():
             if frameinfo.filename == http.client.__file__:
@@ -30,7 +33,17 @@ class StdOut(io.TextIOBase):
         return sys.__stdout__
 
     def write(self, s):
-        self._get_fp().write(s)
+        fp = self._get_fp()
+        if fp is sys.__stdout__:
+            if s == '':
+                return
+            if s == '\n':
+                if self._newlines == 2:
+                    return
+                self._newlines += 1
+            else:
+                self._newlines = int(s[-1] == '\n')
+        fp.write(s)
 
     def flush(self):
         self._get_fp().flush()
@@ -172,17 +185,14 @@ def print_post(post, *, pinned=False):
         text = att.description or ''
         text = wrap_text(text, indent='  ')
         if text:
-            sep = ''
             for line in text:
                 print(line)
-                sep = '\n'
-            print(end=sep)
+            print()
     if post.reblog:
         print_post(post.reblog)
     else:
         text = fmt_html(post.content)
-        if text:
-            print(text)
+        print(text)
 
 def wrap_text(text, indent=''):
     text = text.splitlines()
