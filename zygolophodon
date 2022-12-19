@@ -26,7 +26,7 @@ class StdOut(io.TextIOBase):
         self._newlines = 0
 
     def _get_fp(self):
-        for frameinfo in inspect.stack():
+        for frameinfo in inspect.stack(context=0):
             if frameinfo.filename == http.client.__file__:
                 # Redirect http.client's debug messages to stderr.
                 return sys.__stderr__
