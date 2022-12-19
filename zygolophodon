@@ -116,6 +116,9 @@ def xmain():
     urls = [f'https://DOMAIN/{url}' for url in urls]
     epilog = 'supported URLs:\n' + str.join('\n', [f'  {url}' for url in urls])
     ap = argparse.ArgumentParser(epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+    if sys.version_info < (3, 10):
+        # https://bugs.python.org/issue9694
+        ap._optionals.title = 'options'
     ap.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     ap.add_argument('url', metavar='URL')
     opts = ap.parse_args()
