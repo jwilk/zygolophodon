@@ -174,19 +174,19 @@ def fmt_html(html):
     return text.strip('\n')
 
 def xmain():
-    urls = [
+    url_templates = [
         '@USER/NNNNNN',
         '@USER',
         '@USER/with_replies',
         '@USER/media',
     ]
-    urls = [f'https://DOMAIN/{url}' for url in urls]
+    url_templates = [f'https://DOMAIN/{ut}' for ut in url_templates]
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     if sys.version_info < (3, 10):
         # https://bugs.python.org/issue9694
         ap._optionals.title = 'options'
     ap.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
-    ap.add_argument('url', metavar='URL', help=str.join('\n', urls))
+    ap.add_argument('url', metavar='URL', help=str.join('\n', url_templates))
     opts = ap.parse_args()
     if opts.debug:
         UserAgent.debug_level = 1
