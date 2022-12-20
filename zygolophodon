@@ -174,7 +174,12 @@ def fmt_html(html):
     return text.strip('\n')
 
 def xmain():
-    urls = ['@USER', '@USER/with_replies', '@USER/media', '@USER/NNNNNN']
+    urls = [
+        '@USER',
+        '@USER/with_replies',
+        '@USER/media',
+        '@USER/NNNNNN',
+    ]
     urls = [f'https://DOMAIN/{url}' for url in urls]
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     if sys.version_info < (3, 10):
