@@ -4,7 +4,7 @@ Usage
 .. code:: console
 
    $ zygolophodon --help
-   usage: zygolophodon [-h] URL
+   usage: zygolophodon [-h] [--limit N] URL
 
    positional arguments:
      URL         https://DOMAIN/statuses/NNNNNN
@@ -16,6 +16,7 @@ Usage
 
    options:
      -h, --help  show this help message and exit
+     --limit N   maximum numer of posts to fetch (default: 40)
 
 Example
 =======

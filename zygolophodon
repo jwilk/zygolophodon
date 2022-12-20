@@ -224,6 +224,14 @@ class URLParser(object):
         data.update(match.groupdict())
         return types.SimpleNamespace(**data)
 
+def pint(s):
+    n = int(s)
+    if n > 0:
+        return n
+    else:
+        raise ValueError
+pint.__name__ = 'positive int'
+
 def xmain():
     url_parser = URLParser(
         'statuses/NNNNNN',
@@ -237,6 +245,10 @@ def xmain():
     if sys.version_info < (3, 10):
         # https://bugs.python.org/issue9694
         ap._optionals.title = 'options'
+    default_limit = 40
+    ap.add_argument('--limit', metavar='N', type=pint, default=default_limit,
+        help=f'maximum numer of posts to fetch (default: {default_limit})'
+    )
     ap.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     ap.add_argument('url', metavar='URL', help=str.join('\n', url_parser.templates))
     opts = ap.parse_args()
@@ -252,13 +264,14 @@ def xmain():
             process_user(match.domain, match.user,
                 replies=bool(match.with_replies),
                 media=bool(match.media),
+                limit=opts.limit,
             )
         else:
             process_status(match.domain, match.ident,
                 context=(not match.embed)
             )
 
-def process_user(domain, account, *, replies=False, media=False):
+def process_user(domain, account, *, replies=False, media=False, limit=1e999):
     api = f'https://{domain}/api/v1'
     q_account = urllib.parse.quote(account)
     user = wget_json(f'{api}/accounts/lookup?acct={q_account}')
@@ -266,19 +279,24 @@ def process_user(domain, account, *, replies=False, media=False):
     if user.note:
         print()
         print(fmt_html(user.note))
-    url = f'{api}/accounts/{user.id}/statuses';
+    base_url = url = f'{api}/accounts/{user.id}/statuses';
     statuses = wget_json(f'{url}?pinned=true')
     print_statuses(statuses, pinned=True)
-    if media:
-        url += '?only_media=true'
-    else:
-        no_replies = str(not replies).lower()
-        url += f'?exclude_replies={no_replies}'
-    url += '&limit=40'
-    # TODO: make limit configurable
-    # TODO: implement paging
-    statuses = wget_json(url)
-    print_statuses(statuses)
+    limit -= len(statuses)
+    page_limit = 40
+    while limit > 0:
+        url = base_url
+        if media:
+            url += '?only_media=true'
+        else:
+            no_replies = str(not replies).lower()
+            url += f'?exclude_replies={no_replies}'
+        url += f'&limit={min(limit, page_limit)}'
+        statuses = wget_json(url)
+        print_statuses(statuses)
+        limit -= len(statuses)
+        if limit > 0:
+            return  # TODO: implement paging
 
 def process_status(domain, ident, *, context=True):
     api = f'https://{domain}/api/v1'
