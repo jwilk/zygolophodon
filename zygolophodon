@@ -221,6 +221,7 @@ class URLParser(object):
 
 def xmain():
     url_parser = URLParser(
+        'statuses/NNNNNN',
         '@USER/NNNNNN',
         '@USER',
         '@USER/with_replies',

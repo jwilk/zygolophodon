@@ -7,7 +7,8 @@ Usage
    usage: zygolophodon [-h] URL
 
    positional arguments:
-     URL         https://DOMAIN/@USER/NNNNNN
+     URL         https://DOMAIN/statuses/NNNNNN
+                 https://DOMAIN/@USER/NNNNNN
                  https://DOMAIN/@USER
                  https://DOMAIN/@USER/with_replies
                  https://DOMAIN/@USER/media
