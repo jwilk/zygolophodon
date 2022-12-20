@@ -256,7 +256,7 @@ def xmain():
         ap._optionals.title = 'options'
     default_limit = 40
     ap.add_argument('--limit', metavar='N', type=pint, default=default_limit,
-        help=f'maximum numer of posts to fetch (default: {default_limit})'
+        help=f'request at most N posts (default: {default_limit})'
     )
     ap.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     ap.add_argument('url', metavar='URL', help=str.join('\n', url_parser.templates))

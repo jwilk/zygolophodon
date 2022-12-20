@@ -16,7 +16,7 @@ Usage
 
    options:
      -h, --help  show this help message and exit
-     --limit N   maximum numer of posts to fetch (default: 40)
+     --limit N   request at most N posts (default: 40)
 
 Example
 =======
