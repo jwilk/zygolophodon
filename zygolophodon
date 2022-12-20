@@ -175,10 +175,10 @@ def fmt_html(html):
 
 def xmain():
     urls = [
+        '@USER/NNNNNN',
         '@USER',
         '@USER/with_replies',
         '@USER/media',
-        '@USER/NNNNNN',
     ]
     urls = [f'https://DOMAIN/{url}' for url in urls]
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
