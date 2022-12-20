@@ -129,23 +129,32 @@ class UserAgent():
         headers = dict(cls.headers)
         request = urllib.request.Request(url, headers=headers)
         opener = cls._build_opener()
-        with opener.open(request) as fp:
-            content_encoding = fp.getheader('Content-Encoding', 'identity')
-            data = fp.read()
+        response = opener.open(request)
+        return Response(response)
+
+class Response(object):
+
+    def __init__(self, response):
+        with response:
+            content_encoding = response.getheader('Content-Encoding', 'identity')
+            data = response.read()
         if content_encoding == 'gzip':
-            return gzip.decompress(data)
+            data = gzip.decompress(data)
         elif content_encoding == 'identity':
-            return data
+            pass
         else:
             raise RuntimeError(f'unexpected Content-Encoding: {content_encoding!r}')
+        self.data = data
+        self.headers = response.headers
 
-    @classmethod
-    def get_json(cls, url):
-        data = cls.get(url)
-        return json.loads(data, object_hook=DictProxy)
+    @property
+    def json(self):
+        return json.loads(self.data, object_hook=DictProxy)
 
 wget = UserAgent.get
-wget_json = UserAgent.get_json
+
+def wget_json(url):
+    return wget(url).json
 
 class DictProxy(object):
 
