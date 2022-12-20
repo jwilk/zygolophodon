@@ -280,6 +280,19 @@ def xmain():
                 context=(not match.embed)
             )
 
+def parse_links(s):
+    data = {}
+    regexp = re.compile(r'<([^>]+)>; rel="(\w+)"(?:, |\Z)')
+    i = 0
+    while i < len(s):
+        match = regexp.match(s, i)
+        if match is None:
+            raise RuntimeError(f'cannot parse Link header field: {s!r}')
+        (value, key) = match.groups()
+        data[key] = value
+        i = match.end()
+    return data
+
 def process_user(domain, account, *, replies=False, media=False, limit=1e999):
     api = f'https://{domain}/api/v1'
     q_account = urllib.parse.quote(account)
@@ -301,11 +314,18 @@ def process_user(domain, account, *, replies=False, media=False, limit=1e999):
         url += f'?exclude_replies={no_replies}'
     url += f'&limit={min(limit, page_limit)}'
     while limit > 0:
-        statuses = wget_json(url)
+        response = wget(url)
+        statuses = response.json
         print_statuses(statuses)
         limit -= len(statuses)
-        if limit > 0:
-            return  # TODO: implement paging
+        links = response.headers.get('Link', '')
+        links = parse_links(links)
+        prev_url = links.get('next')
+        if prev_url is None:
+            break
+        if not url.startswith(f'{api}/'):
+            raise RuntimeError(f'suspicious Link URL: {prev_url!r}')
+        url = prev_url
 
 def process_status(domain, ident, *, context=True):
     api = f'https://{domain}/api/v1'
