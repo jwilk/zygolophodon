@@ -168,7 +168,12 @@ def fmt_date(d):
     d = d.replace('T', ' ')
     return d
 
+def clean_html(html):
+    # TODO: use a proper HTML parser?
+    return re.sub(r'<span class="(?:invisible|ellipsis)">([^<]*)</span>', r'\1', html)
+
 def fmt_html(html):
+    html = clean_html(html)
     html2md = html2text.HTML2Text()
     html2md.unicode_snob = True
     text = html2md.handle(html)
