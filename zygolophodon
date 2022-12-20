@@ -277,7 +277,7 @@ def xmain():
             )
         else:
             process_status(match.domain, match.ident,
-                context=(not match.embed)
+                context=(not match.embed),
             )
 
 def parse_links(s):
