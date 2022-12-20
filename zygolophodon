@@ -17,6 +17,7 @@ import signal
 import subprocess
 import sys
 import textwrap
+import types
 import urllib.parse
 import urllib.request
 
@@ -173,34 +174,77 @@ def fmt_html(html):
     text = html2md.handle(html)
     return text.strip('\n')
 
+class URLParser(object):
+
+    def __init__(self, *templates):
+        self.templates = []
+        self._groups = set()
+        self._regexps = []
+        for template in templates:
+            self._add_template(f'https://DOMAIN/{template}')
+
+    def _add_template(self, template):
+        self.templates += [template]
+        group2regexp = dict(
+            domain='[^/]+',
+            user='[^/]+',
+            ident='[0-9]+',
+        )
+        def repl(match):
+            s = match.group()
+            if match.start() == 0 and s == 'https':
+                return s
+            if s.isupper():
+                group = s.lower()
+                if group == 'nnnnnn':
+                    group = 'ident'
+                regexp = group2regexp[group]
+            else:
+                group = s
+                regexp = re.escape(s)
+            self._groups.add(group)
+            return f'(?P<{group}>{regexp})'
+        regexp = re.sub(r'\w+', repl, template)
+        regexp = re.compile(regexp)
+        self._regexps += [regexp]
+
+    def parse(self, url):
+        for regexp in self._regexps:
+            match = re.fullmatch(regexp, url)
+            if match is not None:
+                break
+        else:
+            return
+        data = {group: None for group in self._groups}
+        data.update(match.groupdict())
+        return types.SimpleNamespace(**data)
+
 def xmain():
-    url_templates = [
+    url_parser = URLParser(
         '@USER/NNNNNN',
         '@USER',
         '@USER/with_replies',
         '@USER/media',
-    ]
-    url_templates = [f'https://DOMAIN/{ut}' for ut in url_templates]
+    )
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     if sys.version_info < (3, 10):
         # https://bugs.python.org/issue9694
         ap._optionals.title = 'options'
     ap.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
-    ap.add_argument('url', metavar='URL', help=str.join('\n', url_templates))
+    ap.add_argument('url', metavar='URL', help=str.join('\n', url_parser.templates))
     opts = ap.parse_args()
     if opts.debug:
         UserAgent.debug_level = 1
     url, _ = urllib.parse.urldefrag(opts.url)
-    match = re.fullmatch(r'https://([^/]+)/@([^/]+)(?:/([0-9]+)|/(with_replies)|/(media))?', url)
-    if not match:
+    match = url_parser.parse(url)
+    if match is None:
         ap.error('unsupported URL')
     sys.stdout.flush()
     with StdOut.install():
-        (domain, account, ident, with_replies, media) = match.groups()
-        if ident is None:
-            process_user(domain, account, replies=bool(with_replies), media=bool(media))
+        if match.ident is None:
+            process_user(match.domain, match.user, replies=bool(match.with_replies), media=bool(match.media))
         else:
-            process_status(domain, ident)
+            process_status(match.domain, match.ident)
 
 def process_user(domain, account, *, replies=False, media=False):
     api = f'https://{domain}/api/v1'
