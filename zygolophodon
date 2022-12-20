@@ -293,14 +293,14 @@ def process_user(domain, account, *, replies=False, media=False, limit=1e999):
     print_statuses(statuses, pinned=True)
     limit -= len(statuses)
     page_limit = 40
+    url = base_url
+    if media:
+        url += '?only_media=true'
+    else:
+        no_replies = str(not replies).lower()
+        url += f'?exclude_replies={no_replies}'
+    url += f'&limit={min(limit, page_limit)}'
     while limit > 0:
-        url = base_url
-        if media:
-            url += '?only_media=true'
-        else:
-            no_replies = str(not replies).lower()
-            url += f'?exclude_replies={no_replies}'
-        url += f'&limit={min(limit, page_limit)}'
         statuses = wget_json(url)
         print_statuses(statuses)
         limit -= len(statuses)
