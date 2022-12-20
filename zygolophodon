@@ -325,7 +325,11 @@ def process_user(domain, account, *, replies=False, media=False, limit=1e999):
             break
         if not url.startswith(f'{api}/'):
             raise RuntimeError(f'suspicious Link URL: {prev_url!r}')
-        url = prev_url
+        url = re.sub(
+            r'(?<=[?&]limit=)\d+(?=&|\Z)',
+            str(min(limit, page_limit)),
+            prev_url
+        )
 
 def process_status(domain, ident, *, context=True):
     api = f'https://{domain}/api/v1'
