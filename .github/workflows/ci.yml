@@ -36,7 +36,7 @@ jobs:
         prove -v
     - name: network test
       run: |
-        ./zygolophodon https://mastodon.social/@Foone/109332182249838078
+        ./zygolophodon https://infosec.exchange/@lcamtuf/109537142030669006
     - name: run pydiatra
       run: |
         python3 -m pip install pydiatra
