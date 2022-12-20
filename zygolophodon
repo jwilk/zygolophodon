@@ -228,6 +228,7 @@ def xmain():
     url_parser = URLParser(
         'statuses/NNNNNN',
         '@USER/NNNNNN',
+        '@USER/NNNNNN/embed',
         '@USER',
         '@USER/with_replies',
         '@USER/media',
@@ -250,7 +251,7 @@ def xmain():
         if match.ident is None:
             process_user(match.domain, match.user, replies=bool(match.with_replies), media=bool(match.media))
         else:
-            process_status(match.domain, match.ident)
+            process_status(match.domain, match.ident, context=(not match.embed))
 
 def process_user(domain, account, *, replies=False, media=False):
     api = f'https://{domain}/api/v1'
@@ -274,12 +275,13 @@ def process_user(domain, account, *, replies=False, media=False):
     statuses = wget_json(url)
     print_statuses(statuses)
 
-def process_status(domain, ident):
+def process_status(domain, ident, *, context=True):
     api = f'https://{domain}/api/v1'
     post = wget_json(f'{api}/statuses/{ident}')
     print_post(post)
-    context = wget_json(f'{api}/statuses/{ident}/context')
-    print_statuses(context.descendants)
+    if context:
+        context = wget_json(f'{api}/statuses/{ident}/context')
+        print_statuses(context.descendants)
 
 def print_statuses(statuses, *, pinned=False):
     for post in statuses:
