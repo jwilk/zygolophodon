@@ -249,9 +249,14 @@ def xmain():
     sys.stdout.flush()
     with StdOut.install():
         if match.ident is None:
-            process_user(match.domain, match.user, replies=bool(match.with_replies), media=bool(match.media))
+            process_user(match.domain, match.user,
+                replies=bool(match.with_replies),
+                media=bool(match.media),
+            )
         else:
-            process_status(match.domain, match.ident, context=(not match.embed))
+            process_status(match.domain, match.ident,
+                context=(not match.embed)
+            )
 
 def process_user(domain, account, *, replies=False, media=False):
     api = f'https://{domain}/api/v1'
