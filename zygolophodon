@@ -42,8 +42,10 @@ class StdOut(io.TextIOBase):
         if not sys.__stdout__.isatty():
             return
         cmdline = (os.environ.get('PAGER')
-            or find_command('pager')  # Debian <https://www.debian.org/doc/debian-policy/ch-customized-programs.html#editors-and-pagers>
-            or 'more'  # POSIX <https://pubs.opengroup.org/onlinepubs/007904975/utilities/man.html#tag_04_85_08>
+            or find_command('pager')  # Debian:
+            # https://www.debian.org/doc/debian-policy/ch-customized-programs.html#editors-and-pagers
+            or 'more'  # POSIX:
+            # https://pubs.opengroup.org/onlinepubs/007904975/utilities/man.html#tag_04_85_08
         )
         if cmdline == 'cat':
             return
