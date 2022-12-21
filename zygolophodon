@@ -240,8 +240,8 @@ class HTMLParser(html.parser.HTMLParser):
             st.text += data
 
     def close(self):
-        self.handle_starttag('p', {})
         super().close()
+        self.handle_starttag('p', {})
 
     if sys.version_info < (3, 10):
         def error(self, message):
