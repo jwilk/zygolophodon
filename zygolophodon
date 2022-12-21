@@ -443,10 +443,9 @@ def print_post(post, *, pinned=False):
         print()
         text = att.description or ''
         text = wrap_text(text, indent='  ')
-        if text:
-            for line in text:
-                print(line)
-            print()
+        for line in text:
+            print(line)
+        print()
 
 def wrap_text(text, indent=''):
     text = text.splitlines()
