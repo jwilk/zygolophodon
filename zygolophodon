@@ -61,6 +61,7 @@ class StdOut(io.TextIOBase):
         )
 
     def __init__(self):
+        super().__init__()
         self._newlines = 0
         self._pager = None
         self._stdout = sys.__stdout__
