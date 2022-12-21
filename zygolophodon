@@ -308,8 +308,7 @@ def pint(s):
     n = int(s)
     if n > 0:
         return n
-    else:
-        raise ValueError
+    raise ValueError
 pint.__name__ = 'positive int'
 
 def xmain():
