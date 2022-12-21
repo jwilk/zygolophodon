@@ -50,8 +50,10 @@ class StdOut(io.TextIOBase):
         if 'LESS' not in os.environ:
             env = dict(env or os.environ, LESS='-FXK')
         self._pager = subprocess.Popen(cmdline, shell=True, stdin=subprocess.PIPE, env=env)
-        encoding = sys.__stdout__.encoding
-        self._stdout = io.TextIOWrapper(self._pager.stdin, encoding=encoding, line_buffering=True)
+        self._stdout = io.TextIOWrapper(self._pager.stdin,
+            encoding=sys.__stdout__.encoding,
+            line_buffering=True,
+        )
 
     def __init__(self):
         self._newlines = 0
