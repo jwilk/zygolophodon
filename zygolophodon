@@ -369,7 +369,7 @@ def process_user(domain, account, *, replies=False, media=False, limit=1e999):
     if user.note:
         print()
         print(fmt_html(user.note))
-    base_url = url = f'{api}/accounts/{user.id}/statuses';
+    base_url = url = f'{api}/accounts/{user.id}/statuses'
     statuses = wget_json(f'{url}?pinned=true')
     print_statuses(statuses, pinned=True)
     limit -= len(statuses)
