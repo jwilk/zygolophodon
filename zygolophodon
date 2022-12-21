@@ -88,9 +88,7 @@ class StdOut(io.TextIOBase):
         self._get_fp().flush()
 
     def isatty(self):
-        if self._pager is not None:
-            return 'pager'
-        return False
+        return sys.__stdout__.isatty()
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self._pager:
@@ -169,7 +167,7 @@ class DictProxy(object):
         return self._d[attr]
 
 def fmt_url(url):
-    if sys.stdout.isatty() == 'pager':
+    if sys.stdout.isatty():
         return re.sub('(.)', r'_\b\1', url)
     return url
 
