@@ -467,7 +467,7 @@ def main():
         xmain()
     except BrokenPipeError:
         signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-        signal.raise_signal(signal.SIGPIPE)
+        os.kill(os.getpid(), signal.SIGPIPE)
         raise
 
 if __name__ == '__main__':
