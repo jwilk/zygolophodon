@@ -386,7 +386,7 @@ def process_user(domain, account, *, replies=False, media=False, limit=1e999):
     while limit > 0:
         response = wget(url)
         statuses = response.json
-        print_statuses(statuses)
+        print_statuses(statuses, domain=domain)
         limit -= len(statuses)
         links = response.headers.get('Link', '')
         links = parse_links(links)
@@ -404,17 +404,17 @@ def process_user(domain, account, *, replies=False, media=False, limit=1e999):
 def process_status(domain, ident, *, context=True):
     api = f'https://{domain}/api/v1'
     post = wget_json(f'{api}/statuses/{ident}')
-    print_post(post)
+    print_post(post, domain=domain)
     if context:
         context = wget_json(f'{api}/statuses/{ident}/context')
         print_statuses(context.descendants)
 
-def print_statuses(statuses, *, pinned=False):
+def print_statuses(statuses, *, pinned=False, domain=None):
     for post in statuses:
         print()
         print('-' * text_width)
         print()
-        print_post(post, pinned=pinned)
+        print_post(post, pinned=pinned, domain=domain)
 
 def normalize_lang(lang):
     if lang is None:
@@ -423,8 +423,10 @@ def normalize_lang(lang):
         return 'en'
     return lang
 
-def print_post(post, *, pinned=False):
+def print_post(post, *, pinned=False, domain=None):
     print('Location:', fmt_url(post.url))
+    if post.in_reply_to_id and domain:
+        print('In-Reply-To:', fmt_url(f'https://{domain}/statuses/{post.in_reply_to_id}'))
     if pinned:
         print('Pinned: yes')
     print('From:', fmt_user(post.account))
