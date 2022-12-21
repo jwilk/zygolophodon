@@ -323,7 +323,7 @@ def xmain():
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     if sys.version_info < (3, 10):
         # https://bugs.python.org/issue9694
-        ap._optionals.title = 'options'
+        ap._optionals.title = 'options'  # pylint: disable=protected-access
     default_limit = 40
     ap.add_argument('--limit', metavar='N', type=pint, default=default_limit,
         help=f'request at most N posts (default: {default_limit})'
