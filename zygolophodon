@@ -242,6 +242,11 @@ class HTMLParser(html.parser.HTMLParser):
         self.handle_starttag('p', {})
         super().close()
 
+    if sys.version_info < (3, 10):
+        def error(self, message):
+            # hopefully not reachable
+            raise RuntimeError(message)
+
 def fmt_html(data):
     parser = HTMLParser()
     parser.feed(data)
