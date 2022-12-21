@@ -134,7 +134,7 @@ class UserAgent():
         response = opener.open(request)
         return Response(response)
 
-class Response(object):
+class Response():
 
     def __init__(self, response):
         with response:
@@ -158,7 +158,7 @@ wget = UserAgent.get
 def wget_json(url):
     return wget(url).json
 
-class DictProxy(object):
+class DictProxy():
 
     def __init__(self, d):
         self._d = d
@@ -256,7 +256,7 @@ def fmt_html(html):
     text = re.sub('\N{STX}(.*?)\N{ETX}', repl, text, flags=re.DOTALL)
     return text
 
-class URLParser(object):
+class URLParser():
 
     def __init__(self, *templates):
         self.templates = []
