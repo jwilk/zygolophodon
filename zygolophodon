@@ -364,6 +364,12 @@ def print_post(post, *, pinned=False):
     if post.reblog:
         print('Reblog: yes')
     print()
+    if post.reblog:
+        print_post(post.reblog)
+    else:
+        text = fmt_html(post.content)
+        print(text)
+    print()
     for att in post.media_attachments or ():
         print('*', fmt_url(att.url))
         print()
@@ -373,11 +379,6 @@ def print_post(post, *, pinned=False):
             for line in text:
                 print(line)
             print()
-    if post.reblog:
-        print_post(post.reblog)
-    else:
-        text = fmt_html(post.content)
-        print(text)
 
 def wrap_text(text, indent=''):
     text = text.splitlines()
