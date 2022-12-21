@@ -449,7 +449,7 @@ def print_post(post, *, pinned=False, domain=None):
         print(text)
     print()
     for att in post.media_attachments or ():
-        print('*', fmt_url(att.url))
+        print('\N{PAPERCLIP}', fmt_url(att.url))
         print()
         text = att.description or ''
         text = wrap_text(text, indent='  ')
