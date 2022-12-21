@@ -299,7 +299,7 @@ class URLParser():
             if match is not None:
                 break
         else:
-            return
+            return None
         data = {group: None for group in self._groups}
         data.update(match.groupdict())
         return types.SimpleNamespace(**data)
