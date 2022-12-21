@@ -24,7 +24,7 @@ import urllib.request
 
 0_0  # Python >= 3.6 is required
 
-text_width = 78
+text_width = int(os.getenv('ZYGOLOPHODON_COLUMNS', 78))
 
 prog = argparse.ArgumentParser().prog
 
