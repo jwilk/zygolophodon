@@ -31,6 +31,7 @@ prog = argparse.ArgumentParser().prog
 def find_command(command):
     if shutil.which(command):
         return command
+    return None
 
 def fatal(msg):
     print(f'{prog}: {msg}', file=sys.stderr)
