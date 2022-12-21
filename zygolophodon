@@ -6,6 +6,7 @@
 import argparse
 import contextlib
 import gzip
+import html.parser
 import http.client
 import inspect
 import io
@@ -21,9 +22,9 @@ import types
 import urllib.parse
 import urllib.request
 
-import html2text
-
 0_0  # Python >= 3.6 is required
+
+text_width = 78
 
 prog = argparse.ArgumentParser().prog
 
@@ -180,16 +181,82 @@ def fmt_date(d):
     d = d.replace('T', ' ')
     return d
 
-def clean_html(html):
-    # TODO: use a proper HTML parser?
-    return re.sub(r'<span class="(?:invisible|ellipsis)?">([^<]*)</span>', r'\1', html)
+class HTMLParser(html.parser.HTMLParser):
+
+    def __init__(self):
+        super().__init__()
+        class state:
+            paras = []
+            text = ''
+            a_text = ''
+            a_href = None
+            a_depth = 0
+        self.z_state = state
+
+    def handle_starttag(self, tag, attrs):
+        st = self.z_state
+        if tag == 'p':
+            while st.a_depth > 0:
+                self.handle_endtag('a')
+            if st.text:
+                st.paras += [st.text]
+                st.text = ''
+            return
+        if tag == 'br':
+            if st.a_depth > 0:
+                st.a_text += ' '
+            else:
+                st.text += '\n'
+            return
+        if tag == 'a':
+            if st.a_depth == 0:
+                st.a_href = dict(attrs).get('href', '')
+            st.a_depth += 1
+            return
+
+    def handle_endtag(self, tag):
+        st = self.z_state
+        if tag == 'a':
+            if st.a_depth > 0:
+                st.a_depth -= 1
+            if st.a_depth == 0:
+                text = ''
+                if st.a_text != st.a_href:
+                    text = f'[{st.a_text}]'
+                st.text += f'{text}\N{STX}{st.a_href}\N{ETX}'
+                st.a_href = ''
+                st.a_text = ''
+            return
+
+    def handle_data(self, data):
+        st = self.z_state
+        data = re.sub('[\N{STX}\N{ETX}]', '\N{REPLACEMENT CHARACTER}', data)
+        data = re.sub(r'\s+', ' ', data)
+        if st.a_depth > 0:
+            st.a_text += data
+        else:
+            st.text += data
+
+    def close(self):
+        self.handle_starttag('p', {})
+        super().close()
 
 def fmt_html(html):
-    html = clean_html(html)
-    html2md = html2text.HTML2Text()
-    html2md.unicode_snob = True
-    text = html2md.handle(html)
-    return text.strip('\n')
+    parser = HTMLParser()
+    parser.feed(html)
+    parser.close()
+    lines = []
+    for para in parser.z_state.paras:
+        for line in para.splitlines():
+            lines += wrap_text(line)
+        lines += ['']
+    text = str.join('\n', lines)
+    def repl(match):
+        url = match.group(1)
+        url = fmt_url(url)
+        return f'<{url}>'
+    text = re.sub('\N{STX}(.*?)\N{ETX}', repl, text, flags=re.DOTALL)
+    return text
 
 class URLParser(object):
 
@@ -345,7 +412,7 @@ def process_status(domain, ident, *, context=True):
 def print_statuses(statuses, *, pinned=False):
     for post in statuses:
         print()
-        print('-' * html2text.config.BODY_WIDTH)
+        print('-' * text_width)
         print()
         print_post(post, pinned=pinned)
 
@@ -387,7 +454,7 @@ def wrap_text(text, indent=''):
     text = text.splitlines()
     for line in text:
         line = textwrap.wrap(line,
-            width=html2text.config.BODY_WIDTH,
+            width=text_width,
             initial_indent=indent,
             subsequent_indent=indent,
             break_long_words=False,

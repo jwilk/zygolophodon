@@ -30,7 +30,7 @@ Example
 
    Is there a mastodon client for web/windows (or a browser extension) that'll
    let me paste images into a post, but have them end up uploaded as jpegs, not
-   giant PNGs?  
+   giant PNGs?
    Images copied out of an image editor, I mean. Obviously I can drag JPEG files
    into the upload box.
 
@@ -55,7 +55,7 @@ Example
    From: lime with barcode <https://misc.name/@scanlime>
    Date: 2022-11-12 18:20:00Z
 
-   [@Foone](https://mastodon.social/@Foone) i have a workflow that seems okay for
+   [@Foone]<https://mastodon.social/@Foone> i have a workflow that seems okay for
    phone to masto with cropping... i have my photos on nextcloud, and i use that
    client to find the photo i want and share to the tusky app, which has builtin
    support for crop
@@ -68,10 +68,5 @@ Requirements
 ============
 
 * Python ≥ 3.6
-
-* html2text_
-
-.. _html2text:
-   https://pypi.org/project/html2text/
 
 .. vim:ft=rst ts=3 sts=3 sw=3 et
