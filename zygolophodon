@@ -386,6 +386,7 @@ def wrap_text(text, indent=''):
             width=html2text.config.BODY_WIDTH,
             initial_indent=indent,
             subsequent_indent=indent,
+            break_long_words=False,
         )
         yield str.join('\n', line)
 
