@@ -242,9 +242,9 @@ class HTMLParser(html.parser.HTMLParser):
         self.handle_starttag('p', {})
         super().close()
 
-def fmt_html(html):
+def fmt_html(data):
     parser = HTMLParser()
-    parser.feed(html)
+    parser.feed(data)
     parser.close()
     lines = []
     for para in parser.z_state.paras:
