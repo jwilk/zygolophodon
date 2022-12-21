@@ -52,6 +52,7 @@ class StdOut(io.TextIOBase):
         self._pager = subprocess.Popen(cmdline, shell=True, stdin=subprocess.PIPE, env=env)
         self._stdout = io.TextIOWrapper(self._pager.stdin,
             encoding=sys.__stdout__.encoding,
+            errors=sys.__stdout__.errors,
             line_buffering=True,
         )
 
