@@ -155,20 +155,15 @@ class Response():
 
     @property
     def json(self):
-        return json.loads(self.data, object_hook=DictProxy)
+        return json.loads(self.data, object_hook=Dict)
 
 wget = UserAgent.get
 
 def wget_json(url):
     return wget(url).json
 
-class DictProxy():
-
-    def __init__(self, d):
-        self._d = d
-
-    def __getattr__(self, attr):
-        return self._d[attr]
+class Dict(dict):
+    __getattr__ = dict.__getitem__
 
 def fmt_url(url):
     if sys.stdout.isatty():
