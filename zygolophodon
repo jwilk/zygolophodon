@@ -22,7 +22,7 @@ import types
 import urllib.parse
 import urllib.request
 
-type(0_0)  # Python >= 3.6 is required
+int(0_0)  # Python >= 3.6 is required
 
 text_width = int(os.getenv('ZYGOLOPHODON_COLUMNS', '78'))
 
