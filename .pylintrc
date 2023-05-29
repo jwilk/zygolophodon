@@ -10,6 +10,7 @@ disable =
     missing-module-docstring,
     too-few-public-methods,
     too-many-locals,
+    use-dict-literal,
 
 [REPORTS]
 reports = no
