@@ -334,6 +334,15 @@ def xmain():
     opts = ap.parse_args()
     if opts.debug_http:
         UserAgent.debug_level = 1
+
+    # 'bare' usernames should be `@user@instance` or `user@instance`
+    if opts.url[0] == "@" or opts.url[0:4] != "http":
+        parts = opts.url.split("@", 3)
+        # Reverse this because `a@b = (a,b)` and `@a@b = (,a,b)`
+        # and we only want the last 2 items in either case.
+        parts.reverse()
+        opts.url = f"https://{parts[0]}/@{parts[1]}"
+
     url, _ = urllib.parse.urldefrag(opts.url)
     match = url_parser.parse(url)
     if match is None:
