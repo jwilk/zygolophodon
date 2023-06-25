@@ -321,6 +321,11 @@ def xmain():
         '@USER/with_replies',
         '@USER/media',
     )
+    # Support bare usernames - assume `https` as with above templates.
+    bare_usernames = [
+        '@USER@DOMAIN',
+        'USER@DOMAIN',
+    ]
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     if sys.version_info < (3, 10):
         # https://bugs.python.org/issue9694
@@ -330,7 +335,7 @@ def xmain():
         help=f'request at most N posts (default: {default_limit})'
     )
     ap.add_argument('--debug-http', action='store_true', help=argparse.SUPPRESS)
-    ap.add_argument('url', metavar='URL', help=str.join('\n', url_parser.templates))
+    ap.add_argument('url', metavar='URL', help=str.join('\n', url_parser.templates + bare_usernames))
     opts = ap.parse_args()
     if opts.debug_http:
         UserAgent.debug_level = 1
@@ -341,6 +346,7 @@ def xmain():
         # Reverse this because `a@b = (a,b)` and `@a@b = (,a,b)`
         # and we only want the last 2 items in either case.
         parts.reverse()
+        # Safe to assume `https` here because the existing code already does.
         opts.url = f"https://{parts[0]}/@{parts[1]}"
 
     url, _ = urllib.parse.urldefrag(opts.url)
