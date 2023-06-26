@@ -425,7 +425,8 @@ def normalize_lang(lang):
     return lang
 
 def print_post(post, *, pinned=False, domain=None):
-    print('Location:', fmt_url(post.url))
+    if post.url:
+        print('Location:', fmt_url(post.url or post.uri))
     if post.in_reply_to_id and domain:
         print('In-Reply-To:', fmt_url(f'https://{domain}/statuses/{post.in_reply_to_id}'))
     if pinned:
