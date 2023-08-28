@@ -260,14 +260,16 @@ def fmt_html(data):
     text = re.sub('\N{STX}(.*?)\N{ETX}', repl, text, flags=re.DOTALL)
     return text
 
-class URLParser():
+class AddrParser():
 
     def __init__(self, *templates):
         self.templates = []
         self._groups = set()
         self._regexps = []
         for template in templates:
-            self._add_template(f'https://DOMAIN/{template}')
+            if template[0] == '/':
+                template = f'https://DOMAIN{template}'
+            self._add_template(template)
 
     def _add_template(self, template):
         self.templates += [template]
@@ -313,13 +315,15 @@ def pint(s):
 pint.__name__ = 'positive int'
 
 def xmain():
-    url_parser = URLParser(
-        'statuses/NNNNNN',
-        '@USER/NNNNNN',
-        '@USER/NNNNNN/embed',
-        '@USER',
-        '@USER/with_replies',
-        '@USER/media',
+    addr_parser = AddrParser(
+        '/statuses/NNNNNN',
+        '/@USER/NNNNNN',
+        '/@USER/NNNNNN/embed',
+        '/@USER',
+        '/@USER/with_replies',
+        '/@USER/media',
+        '@USER@DOMAIN',
+        'USER@DOMAIN',
     )
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     if sys.version_info < (3, 10):
@@ -330,14 +334,17 @@ def xmain():
         help=f'request at most N posts (default: {default_limit})'
     )
     ap.add_argument('--debug-http', action='store_true', help=argparse.SUPPRESS)
-    ap.add_argument('url', metavar='URL', help=str.join('\n', url_parser.templates))
+    ap.add_argument('addr', metavar='ADDRESS', help=str.join('\n', addr_parser.templates))
     opts = ap.parse_args()
     if opts.debug_http:
         UserAgent.debug_level = 1
-    url, _ = urllib.parse.urldefrag(opts.url)
-    match = url_parser.parse(url)
+    addr = opts.addr
+    if '/' in addr:
+        # strip URL fragment
+        addr, _ = urllib.parse.urldefrag(addr)
+    match = addr_parser.parse(addr)
     if match is None:
-        ap.error('unsupported URL')
+        ap.error('unsupported address')
     sys.stdout.flush()
     with StdOut.install():
         if match.ident is None:

@@ -4,15 +4,17 @@ Usage
 .. code:: console
 
    $ zygolophodon --help
-   usage: zygolophodon [-h] [--limit N] URL
+   usage: zygolophodon [-h] [--limit N] ADDRESS
 
    positional arguments:
-     URL         https://DOMAIN/statuses/NNNNNN
+     ADDRESS     https://DOMAIN/statuses/NNNNNN
                  https://DOMAIN/@USER/NNNNNN
                  https://DOMAIN/@USER/NNNNNN/embed
                  https://DOMAIN/@USER
                  https://DOMAIN/@USER/with_replies
                  https://DOMAIN/@USER/media
+                 @USER@DOMAIN
+                 USER@DOMAIN
 
    options:
      -h, --help  show this help message and exit
