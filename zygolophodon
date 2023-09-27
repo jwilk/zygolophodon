@@ -292,6 +292,7 @@ class AddrParser():
                 regexp = re.escape(s)
             self._groups.add(group)
             return f'(?P<{group}>{regexp})'
+        template = template.replace('/DOMAIN/', '/DOMAIN/(deck/)?')
         regexp = re.sub(r'\w+', repl, template)
         regexp = re.compile(regexp)
         self._regexps += [regexp]
