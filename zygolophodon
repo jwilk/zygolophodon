@@ -122,8 +122,10 @@ class UserAgent():
 
     @classmethod
     def _build_opener(cls):
-        # TODO: Get rid of this function once
-        # <https://github.com/python/cpython/issues/99352> is fixed.
+        # Work-around for <https://github.com/python/cpython/issues/99352>
+        # ("urllib.request.urlopen() no longer respects the
+        # http.client.HTTPConnection.debuglevel").
+        # TODO: Get rid of this once Python < 3.12 is no longer supported.
         handlers = [
             Handler(debuglevel=cls.debug_level)
             for Handler in [urllib.request.HTTPHandler, urllib.request.HTTPSHandler]
