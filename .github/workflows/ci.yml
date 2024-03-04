@@ -37,6 +37,13 @@ jobs:
     - name: network test
       run: |
         ./zygolophodon https://infosec.exchange/@lcamtuf/109537142030669006
+    - name: install
+      run: |
+        make install PREFIX=~/.local
+    - name: post-install smoke-test
+      run: |
+        cd /
+        zygolophodon --version
     - name: run pydiatra
       run: |
         python3 -m pip install pydiatra
