@@ -24,6 +24,8 @@ import urllib.request
 
 int(0_0)  # Python >= 3.6 is required
 
+__version__ = '0'  # not released yet
+
 text_width = int(os.getenv('ZYGOLOPHODON_COLUMNS', '78'))
 
 prog = argparse.ArgumentParser().prog
@@ -262,6 +264,25 @@ def fmt_html(data):
     text = re.sub('\N{STX}(.*?)\N{ETX}', repl, text, flags=re.DOTALL)
     return text
 
+class VersionAction(argparse.Action):
+    '''
+    argparse --version action
+    '''
+
+    def __init__(self, option_strings, dest=argparse.SUPPRESS):
+        super().__init__(
+            option_strings=option_strings,
+            dest=dest,
+            nargs=0,
+            help='show version information and exit'
+        )
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        print(f'{parser.prog} {__version__}')
+        print('+ Python {0}.{1}.{2}'.format(*sys.version_info))  # pylint: disable=consider-using-f-string
+
+        parser.exit()
+
 class AddrParser():
 
     def __init__(self, *templates):
@@ -332,6 +353,7 @@ def xmain():
     if sys.version_info < (3, 10):
         # https://bugs.python.org/issue9694
         ap._optionals.title = 'options'  # pylint: disable=protected-access
+    ap.add_argument('--version', action=VersionAction)
     default_limit = 40
     ap.add_argument('--limit', metavar='N', type=pint, default=default_limit,
         help=f'request at most N posts (default: {default_limit})'
