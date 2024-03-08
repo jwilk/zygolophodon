@@ -341,6 +341,7 @@ pint.__name__ = 'positive int'
 def xmain():
     addr_parser = AddrParser(
         '/statuses/NNNNNN',
+        '/users/USER/statuses/NNNNNN',
         '/@USER/NNNNNN',
         '/@USER/NNNNNN/embed',
         '/@USER',

@@ -8,6 +8,7 @@ Usage
 
    positional arguments:
      ADDRESS     https://DOMAIN/statuses/NNNNNN
+                 https://DOMAIN/users/USER/statuses/NNNNNN
                  https://DOMAIN/@USER/NNNNNN
                  https://DOMAIN/@USER/NNNNNN/embed
                  https://DOMAIN/@USER
