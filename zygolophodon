@@ -114,6 +114,23 @@ class StdOut(io.TextIOBase):
         finally:
             sys.stdout = sys.__stdout__
 
+def output_link(url):
+    print(url, file=output_links)
+    return url
+
+class OutputLinksHandler(urllib.request.BaseHandler):
+    # Want to print URLs as the very first thing
+    handler_order = 0
+
+    def __init__(self, debuglevel=0):
+        pass
+
+    def http_open(self, req):
+        output_link(req.full_url)
+
+    def https_open(self, req):
+        output_link(req.full_url)
+
 class UserAgent():
 
     headers = {
@@ -121,6 +138,7 @@ class UserAgent():
         'Accept-Encoding': 'gzip',
     }
     debug_level = 0
+    handlers = [urllib.request.HTTPHandler, urllib.request.HTTPSHandler]
 
     @classmethod
     def _build_opener(cls):
@@ -130,7 +148,7 @@ class UserAgent():
         # TODO: Get rid of this once Python < 3.12 is no longer supported.
         handlers = [
             Handler(debuglevel=cls.debug_level)
-            for Handler in [urllib.request.HTTPHandler, urllib.request.HTTPSHandler]
+            for Handler in cls.handlers
         ]
         return urllib.request.build_opener(*handlers)
 
@@ -169,12 +187,18 @@ def wget_json(url):
 class Dict(dict):
     __getattr__ = dict.__getitem__
 
-def fmt_url(url):
+def fmt_url(url, output=True):
+    if output:
+        output_link(url)
     if sys.stdout.isatty():
         return re.sub('(.)', r'_\b\1', url)
     return url
 
-def fmt_user(account):
+def fmt_user(api, account):
+    output_link(f'{account.url}.rss')
+    output_link(f'{api}/accounts/lookup?acct={account.username}')
+    user = output_link(f'{api}/accounts/{account.id}')
+    output_link(f'{user}/statuses')
     return f'{account.display_name} <{fmt_url(account.url)}>'.lstrip()
 
 def fmt_date(d):
@@ -215,8 +239,16 @@ class HTMLParser(html.parser.HTMLParser):
                 st.text += '\n'
             return
         if tag == 'a':
+            dattrs = dict(attrs)
+            url = dattrs.get('href', '')
+            classes = dattrs.get('class', '').split()
+            if dattrs.get('rel') == 'tag' or \
+               'hashtag' in classes or \
+               'u-url' in classes:
+                output_link(f'{url}.rss')
+            output_link(url)
             if st.a_depth == 0:
-                st.a_href = dict(attrs).get('href', '')
+                st.a_href = url
             st.a_depth += 1
             return
 
@@ -270,7 +302,7 @@ def fmt_html(data):
     text = str.join('\n', lines)
     def repl(match):
         url = match.group(1)
-        url = fmt_url(url)
+        url = fmt_url(url, False)
         return f'<{url}>'
     text = re.sub('\N{STX}(.*?)\N{ETX}', repl, text, flags=re.DOTALL)
     return text
@@ -383,9 +415,17 @@ def xmain():
     ap.add_argument('--limit', metavar='N', type=pint, default=default_limit,
         help=f'request at most N posts (default: {default_limit})'
     )
+    ap.add_argument('--output-links', type=argparse.FileType('a'), help=argparse.SUPPRESS)
     ap.add_argument('--debug-http', action='store_true', help=argparse.SUPPRESS)
     ap.add_argument('addr', metavar='ADDRESS', help=str.join('\n', addr_parser.templates))
     opts = ap.parse_args()
+    global output_links
+    if opts.output_links:
+        output_links = opts.output_links
+        handler = OutputLinksHandler
+        UserAgent.handlers.insert(0, handler)
+    else:
+        output_links = open(os.devnull, 'a')
     if opts.debug_http:
         UserAgent.debug_level = 1
     addr = opts.addr
@@ -445,11 +485,12 @@ def process_user(domain, account, *, replies=False, media=False, limit=1e999):
     api = f'https://{domain}/api/v1'
     q_account = urllib.parse.quote(account)
     user = wget_json(f'{api}/accounts/lookup?acct={q_account}')
-    print('User:', fmt_user(user))
+    print('User:', fmt_user(api, user))
     if user.note:
         print()
         print(fmt_html(user.note))
-    base_url = url = f'{api}/accounts/{user.id}/statuses'
+    base_user = output_link(f'{api}/accounts/{user.id}')
+    base_url = url = output_link(f'{base_user}/statuses')
     statuses = wget_json(f'{url}?pinned=true')
     fix_posts(statuses, domain)
     print_statuses(statuses, pinned=True)
@@ -506,15 +547,18 @@ def normalize_lang(lang):
     return lang
 
 def print_post(post, *, pinned=False, hide_in_reply_to=False):
+    api = f'https://{domain}/api/v1'
+    output_link(f'{api}/statuses/{post.id}')
     url = post.url or post.uri
     print('Location:', fmt_url(url))
     if post.in_reply_to_url and not hide_in_reply_to:
+        output_link(f'{api}/statuses/{post.in_reply_to_id}')
         print('In-Reply-To:', fmt_url(post.in_reply_to_url))
     if pinned:
         print('Pinned: yes')
     if post.account:
         # missing on Pleroma
-        print('From:', fmt_user(post.account))
+        print('From:', fmt_user(api, post.account))
     print('Date:', fmt_date(post.created_at))
     if normalize_lang(post.language) != 'en':
         print('Language:', post.language)
@@ -522,7 +566,9 @@ def print_post(post, *, pinned=False, hide_in_reply_to=False):
         print('Reblog: yes')
     print()
     if post.reblog:
-        print_post(post.reblog)
+        reblog_url = post.reblog.url or post.reblog.uri
+        reblog_domain = urllib.parse.urlparse(reblog_url).hostname
+        print_post(post.reblog, domain=reblog_domain)
     else:
         text = fmt_html(post.content)
         print(text)
