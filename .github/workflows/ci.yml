@@ -44,6 +44,13 @@ jobs:
       run: |
         cd /
         zygolophodon --version
+    - name: post-install man page check
+      env:
+        MANPATH: /home/runner/.local/share/man
+        MANWIDTH: 80
+      run: |
+        cd /
+        man 1 zygolophodon | grep -A 10 -w ZYGOLOPHODON
     - name: run pydiatra
       run: |
         python3 -m pip install pydiatra
