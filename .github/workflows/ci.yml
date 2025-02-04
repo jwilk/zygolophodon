@@ -91,5 +91,14 @@ jobs:
       run: |
         private/update-readme
         git diff --exit-code
+    - name: install mandoc
+      run: |
+        sudo apt-get install mandoc
+    - name: build man page
+      run: |
+        make doc/zygolophodon.1
+    - name: run mandoc lint
+      run: |
+        mandoc -T lint doc/*.1
 
 # vim:ts=2 sts=2 sw=2 et
