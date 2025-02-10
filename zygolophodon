@@ -845,6 +845,7 @@ class Mastodonoid(Instance):
         return url
 
     def fix_post(self, post):
+        post.alt_url = self.get_post_url(post_id=post.id)
         irt_url = None
         if post.in_reply_to_id:
             irt_url = self.get_post_url(post_id=post.in_reply_to_id)
@@ -861,7 +862,7 @@ class Mastodonoid(Instance):
             if post.url == post.reblog.uri:
                 # FIXME in Pleroma?
                 # Why is the URL unhelpful?
-                post.url = self.get_post_url(post_id=post.id)
+                post.url = post.alt_url
             if post.uri == post.reblog.uri:
                 post.uri = None
         post.url = self.get_fixed_post_url(post.url)
@@ -1191,7 +1192,14 @@ paperclip = Symbol('paperclip')
 def print_post(post, *, hide_in_reply_to=False):
     url = post.url or post.uri
     if url:
-        print('Location:', fmt_url(url))
+        alt_url = None
+        url_comment = []
+        if not parse_addr(url):
+            url_comment = ['(not supported by zygolophodon)']
+            alt_url = post.alt_url
+        print('Location:', fmt_url(url), *url_comment)
+        if alt_url:
+            print('Alt-Location:', fmt_url(alt_url))
     if post.in_reply_to_id and not hide_in_reply_to:
         if post.in_reply_to_url:
             print('In-Reply-To:', fmt_url(post.in_reply_to_url))
