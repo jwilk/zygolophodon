@@ -34,6 +34,9 @@ Usage
                        https://DOMAIN/notes/IDENT (Iceshrimp)
                        https://DOMAIN/notice/IDENT (Pleroma)
                        https://DOMAIN/tag/TAG (Pleroma)
+                       https://DOMAIN/snac/USER (Snac)
+                       https://DOMAIN/snac/USER/p/IDENT (Snac)
+                       https://DOMAIN/snac?t=TAG (Snac)
 
    options:
      -h, --help        show this help message and exit

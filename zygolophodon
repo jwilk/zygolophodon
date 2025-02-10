@@ -10,6 +10,7 @@ import contextlib
 import errno
 import functools
 import gzip
+import hashlib
 import html.parser
 import http.client
 import inspect
@@ -1048,6 +1049,94 @@ class Pleroma(Mastodonoid):
             pass
         else:
             post.pinned = pinned_at
+
+@Instance.register
+class Snac(Mastodonoid):
+
+    # Codebase: https://codeberg.org/grunfink/snac2
+
+    tag_url_template = '/snac?t=TAG'
+
+    post_url_template = '/snac/USER/p/IDENT'
+    # FIXME! This does not work.
+
+    post_id_regexp = '[0-9]{10}[.][0-9]{6}'
+    # Source: function tid() in snac.c
+    #
+    # Identifiers are fixed-point decimals
+    # denoting the number of seconds since 1970.
+    #
+    # In practice, the integer part is always 10 digits (until 2286).
+    #
+    # $ export TZ=UTC0
+    # $ qalc -t '"1970-01-01" + (10 ** 9) s'
+    # "2001-09-09T02:46:18"
+    # $ qalc -t '"1970-01-01" + (10 ** 10) s'
+    # "2286-11-20T17:46:13"
+
+    addr_parser = AddrParser(
+        # FIXME! Some instances don't use the /snac prefix, e.g.:
+        # https://snac.tesio.it/giacomo
+        # https://snac.lx.oliva.nom.br/lxo
+        '/snac/USER',
+        '/snac/USER/p/IDENT',
+        '/snac?t=TAG', # FIXME! The question mark here doesn't work.
+    )
+
+    @staticmethod
+    def get_post_id_from_url(url):
+        # Source: function mastoapi_id() in mastoapi.c
+        #
+        # Post identifiers used by the Mastodon API are different
+        # than the user-facing ones. For example:
+        #
+        #   {
+        #     "id": "173848323535e3c463e39096889b7b9e0321de59b0",
+        #     "uri": "https://comam.es/snac/grunfink/p/1738483235.413494",
+        #     "url": "https://comam.es/snac/grunfink/p/1738483235.413494",
+        #     ...
+        #   }
+        #
+        # where "e3c463e39096889b7b9e0321de59b0" is the MD5 of the post URL.
+
+        match = re.fullmatch('https://.+/p/([0-9]+)[.][0-9]+', url)
+        # FIXME? Normalize percent-encoded unreserved characters?
+        [timestamp] = match.groups()
+        md = hashlib.md5()
+        md.update(url.encode())
+        md = md.hexdigest()
+        return f'{timestamp}{md}'
+
+    @classmethod
+    def parse_addr(cls, addr):
+        match = super().parse_addr(addr)
+        if match and match.ident:
+            match.ident = cls.get_post_id_from_url(addr)
+        return match
+
+    @classmethod
+    def identify(cls, data):
+        if re.search(r'\breally snac\b', data.version):
+            return 1
+        return -1
+
+    def get_post_url(self, *, post_id):
+        template = self.post_url_template
+        path = expand_template(template, ident=post_id, user='FIXME')
+        return f'{self.url}{path}'
+
+    def fetch_user_posts(self, user, *, limit, pinned=False, **params):
+        if pinned:
+            # FIXME in Snac?
+            # It doesn't seem to understand pinned=true.
+            return []
+        return super().fetch_user_posts(user, limit=limit, **params)
+
+    def fetch_tag_info(self, tag_name):
+        # FIXME in Snac?
+        # The API is not available,
+        # despite claimed version 4.0 or so.
+        return Instance.fetch_tag_info(self, tag_name)
 
 def plural(i, noun):
     if i == 1:
