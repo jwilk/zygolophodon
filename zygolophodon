@@ -533,6 +533,7 @@ class AddrParser():
 def parse_addr(addr):
     for instance_type in Instance.types:
         if match := instance_type.parse_addr(addr):
+            match.instance_type = instance_type
             return match
     return None
 
@@ -577,7 +578,7 @@ def xmain():
         ap.error('unsupported address')
     sys.stdout.flush()
     with StdOut.install():
-        instance = Instance.connect(match.url)
+        instance = match.instance_type.connect(match.url)
         if match.tag:
             process_tag(instance, match.tag,
                 limit=opts.limit,
@@ -612,22 +613,13 @@ class Instance(abc.ABC):
 
     tag_url_template = abstractattribute()
 
-    post_url_template = abstractattribute()
-
     post_id_regexp = abstractattribute()
 
     addr_parser = abstractattribute()
 
-    def __init__(self, url, data):
+    def __init__(self, url, data=None):
         self.url = url
         self.data = data
-
-    @functools.cached_property
-    def api_version(self):
-        match = re.match('([0-9]+([.][0-9]+)*)', self.data.version)
-        version = match.group()
-        version = version.split('.')
-        return tuple(int(x) for x in version)
 
     @classmethod
     def parse_addr(cls, addr):
@@ -642,26 +634,81 @@ class Instance(abc.ABC):
         del match.domain
         return match
 
-    @staticmethod
-    def connect(url):
+    @classmethod
+    def connect(cls, url):
+        return cls(url)
+
+    @abc.abstractmethod
+    def fetch_user_by_name(self, name):
+        pass
+
+    @abc.abstractmethod
+    def fetch_user_posts(self, user, *, limit, **params):
+        pass
+
+    @abc.abstractmethod
+    def fetch_tag_posts(self, tag_name, *, limit, **params):
+        pass
+
+    @abc.abstractmethod
+    def fetch_post(self, post_id):
+        pass
+
+    @abc.abstractmethod
+    def fetch_post_context(self, post_id, ancestors=True, descendants=True):
+        pass
+
+    def get_tag_url(self, tag_name):
+        q_tag = urlquote(tag_name)
+        template = self.tag_url_template
+        path = expand_template(template, tag=q_tag)
+        return f'{self.url}{path}'
+
+    def fetch_tag_info(self, tag_name):
+        return Dict(
+            url=self.get_tag_url(tag_name),
+            history=None,
+        )
+
+    @classmethod
+    def register(cls, instance_type):
+        cls.types += [instance_type]
+        return instance_type
+
+class Mastodonoid(Instance):
+
+    post_url_template = abstractattribute()
+
+    @classmethod
+    @abc.abstractmethod
+    def identify(cls, data):
+        pass
+
+    @functools.cached_property
+    def api_version(self):
+        match = re.match('([0-9]+([.][0-9]+)*)', self.data.version)
+        version = match.group()
+        version = version.split('.')
+        return tuple(int(x) for x in version)
+
+    @classmethod
+    def connect(cls, url):
         # https://docs.joinmastodon.org/methods/instance/#v1
         # available since Mastodon v1.1
         # FIXME? v1 is deprecated, but OTOH Mastodon before v4.0
         # and some non-Mastodon instances don't support v2.
         instance = Mastodon(url, None)
         data = instance._fetch('instance')  # pylint: disable=protected-access
-        inst_types = sorted(
-            Instance.types,
+        inst_types = [
+            inst for inst in Instance.types
+            if issubclass(inst, Mastodonoid)
+        ]
+        inst_types.sort(
             key=(lambda t: t.identify(data)),
             reverse=True,
         )
         inst_type = inst_types[0]
         return inst_type(url, data)
-
-    @classmethod
-    @abc.abstractmethod
-    def identify(cls, data):
-        pass
 
     def _api_url(self, url):
         return f'{self.url}/api/v1/{url}'
@@ -780,34 +827,17 @@ class Instance(abc.ABC):
         for post in posts:
             self.fix_post(post)
 
-    def get_tag_url(self, tag_name):
-        q_tag = urlquote(tag_name)
-        template = self.tag_url_template
-        path = expand_template(template, tag=q_tag)
-        return f'{self.url}{path}'
-
-    def dummy_fetch_tag_info(self, tag_name):
-        return Dict(
-            url=self.get_tag_url(tag_name),
-            history=None,
-        )
-
     def fetch_tag_info(self, tag_name):
         # https://docs.joinmastodon.org/methods/tags/#get
         # available since Mastodon v4.0
         if self.api_version < (4, 0):
-            return self.dummy_fetch_tag_info(tag_name)
+            return Instance.fetch_tag_info(self, tag_name)
         q_tag = urlquote(tag_name)
         url = f'tags/{q_tag}'
         return self._fetch(url)
 
-    @classmethod
-    def register(cls, instance_type):
-        cls.types += [instance_type]
-        return instance_type
-
 @Instance.register
-class Mastodon(Instance):
+class Mastodon(Mastodonoid):
 
     # Codebase: https://github.com/mastodon/mastodon
 
@@ -878,7 +908,7 @@ class Mastodon(Instance):
         return url
 
 @Instance.register
-class Iceshrimp(Instance):
+class Iceshrimp(Mastodonoid):
 
     # Codebase: https://iceshrimp.dev/
     # Forks: https://codeberg.org/catodon/catodon
@@ -923,10 +953,10 @@ class Iceshrimp(Instance):
         # FIXME in Iceshrimp?
         # The API is not available,
         # despite claimed version 4.2 or so.
-        return self.dummy_fetch_tag_info(tag_name)
+        return Instance.fetch_tag_info(self, tag_name)
 
 @Instance.register
-class Pleroma(Instance):
+class Pleroma(Mastodonoid):
 
     # Codebase: https://git.pleroma.social/pleroma/pleroma
 
