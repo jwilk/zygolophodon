@@ -532,6 +532,8 @@ def parse_links(s):
         i = match.end()
     return data
 
+urlquote = functools.partial(urllib.parse.quote, safe='')
+
 def abstractattribute():
     return abc.abstractmethod(lambda: None)
 
@@ -587,7 +589,7 @@ class Instance(abc.ABC):
         return wget_json(url)
 
     def fetch_user_by_name(self, name):
-        q_name = urllib.parse.quote(name)
+        q_name = urlquote(name)
         return self._fetch(f'accounts/lookup?acct={q_name}')
 
     def _fetch_posts(self, url, *, limit, **params):
@@ -620,7 +622,7 @@ class Instance(abc.ABC):
         return self._fetch_posts(url, limit=limit, **params)
 
     def fetch_tag_posts(self, tag_name, *, limit, **params):
-        q_tag = urllib.parse.quote(tag_name)
+        q_tag = urlquote(tag_name)
         url = f'timelines/tag/{q_tag}'
         return self._fetch_posts(url, limit=limit, **params)
 
