@@ -243,6 +243,21 @@ class Response():
             raise URLError(self.url, msg) from exc
         return data
 
+    @property
+    def links(self):
+        s = self.headers.get('Link', '')
+        data = {}
+        regexp = re.compile(r'<([^>]+)>; rel="(\w+)"(?:, |\Z)')
+        i = 0
+        while i < len(s):
+            match = regexp.match(s, i)
+            if not match:
+                raise RuntimeError(f'cannot parse Link header field: {s!r}')
+            (value, key) = match.groups()
+            data[key] = value
+            i = match.end()
+        return data
+
 wget = UserAgent.get
 
 def wget_json(url):
@@ -532,19 +547,6 @@ def xmain():
                 with_ancestors=(with_context and opts.with_ancestors),
             )
 
-def parse_links(s):
-    data = {}
-    regexp = re.compile(r'<([^>]+)>; rel="(\w+)"(?:, |\Z)')
-    i = 0
-    while i < len(s):
-        match = regexp.match(s, i)
-        if not match:
-            raise RuntimeError(f'cannot parse Link header field: {s!r}')
-        (value, key) = match.groups()
-        data[key] = value
-        i = match.end()
-    return data
-
 urlquote = functools.partial(urllib.parse.quote, safe='')
 
 def abstractattribute():
@@ -617,9 +619,7 @@ class Instance(abc.ABC):
             self.fix_posts(posts)
             yield from posts
             limit -= len(posts)
-            links = response.headers.get('Link', '')
-            links = parse_links(links)
-            next_url = links.get('next')
+            next_url = response.links.get('next')
             if next_url is None:
                 break
             if not url.startswith(self._api_url('')):
