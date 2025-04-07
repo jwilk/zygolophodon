@@ -152,7 +152,7 @@ class StdOut(io.TextIOBase):
         finally:
             sys.stdout = sys.__stdout__
 
-def fmt_url_error(exc):
+def _fmt_url_error(exc):
     if isinstance(exc, urllib.error.HTTPError):
         return str(exc)
     exc = exc.reason
@@ -168,6 +168,17 @@ def fmt_url_error(exc):
         else:
             return f'[{ec}] {exc.strerror}'
     return str(exc)
+
+class URLError(RuntimeError):
+
+    def __init__(self, url, reason):
+        self.url = url
+        if isinstance(reason, Exception):
+            reason = _fmt_url_error(reason)
+        self._message = reason
+
+    def __str__(self):
+        return self._message
 
 class UserAgent():
 
@@ -198,8 +209,7 @@ class UserAgent():
         try:
             response = opener.open(request)
         except urllib.error.URLError as exc:
-            msg = fmt_url_error(exc)
-            fatal(f'<{url}>: {msg}')
+            raise URLError(url, exc) from exc
         return Response(response, url=url)
 
 class Response():
@@ -227,7 +237,7 @@ class Response():
                 msg = 'received HTML instead of JSON'
             else:
                 msg = f'JSON decoding error: {exc}'
-            fatal(f'<{self.url}>: {msg}')
+            raise URLError(self.url, msg) from exc
         return data
 
 wget = UserAgent.get
@@ -961,6 +971,8 @@ def wrap_text(text, indent=''):
 def main():
     try:
         xmain()
+    except URLError as exc:
+        fatal(f'<{exc.url}>: {exc}')
     except BrokenPipeError:
         signal.signal(signal.SIGPIPE, signal.SIG_DFL)
         os.kill(os.getpid(), signal.SIGPIPE)
