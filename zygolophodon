@@ -20,6 +20,7 @@ import re
 import shutil
 import signal
 import socket
+import ssl
 import subprocess
 import sys
 import textwrap
@@ -160,7 +161,9 @@ def _fmt_url_error(exc):
         for key, value in vars(socket).items():
             if key[:4] == 'EAI_' and value == exc.errno:
                 return f'[{key}] {exc.strerror}'
-    if isinstance(exc, ConnectionError):
+    if isinstance(exc, ssl.SSLError):
+        pass
+    elif isinstance(exc, OSError):
         try:
             ec = errno.errorcode[exc.errno]
         except LookupError:
