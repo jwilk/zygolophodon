@@ -1,0 +1,37 @@
+.\" Copyright © 2025 Jakub Wilk <jwilk@jwilk.net>
+.\" SPDX-License-Identifier: MIT
+
+.TH ZYGOLOPHODON 1 2025-02-01 "zygolophodon {{VERSION}}"
+.SH NAME
+zygolophodon \- CLI for reading Mastodon posts
+.SH SYNOPSIS
+.SY zygolophodon
+.RB [ \-\-limit " \fIN\fP]"
+.RB [ \-\-with\-ancestors ]
+.I ADDRESS
+.SH DESCRIPTION
+.\" TODO: Actually explain what it does.
+The following address schemes are supported:
+{{ADDRESS-LIST}}
+.SH OPTIONS
+.TP
+.BI "\-\-limit " N
+Request at most
+.I N
+posts.
+The default is 40.
+.TP
+.B \-\-with\-ancestors
+Show also ancestors of the post.
+.TP
+.BR \-h ", " \-\-help
+Show help message and exit.
+.TP
+.B \-\-version
+Show version information and exit.
+.\" .SH ENVIRONMENT
+.\" TODO
+.SH EXAMPLE
+.EX
+{{EXAMPLE}}
+.EE

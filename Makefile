@@ -7,12 +7,18 @@ PREFIX = /usr/local
 DESTDIR =
 
 bindir = $(PREFIX)/bin
+mandir = $(PREFIX)/share/man
 
 .PHONY: all
-all: ;
+all: doc/zygolophodon.1
+
+%.1: %.1.in private/gen-manpage
+	private/gen-manpage < $(<) > $(@).tmp
+	mv $(@).tmp $(@)
 
 .PHONY: install
-install: zygolophodon
+install: zygolophodon all
+	# executable:
 	install -d $(DESTDIR)$(bindir)
 	python_exe=$$($(PYTHON) -c 'import sys; print(sys.executable)') && \
 	sed \
@@ -21,10 +27,13 @@ install: zygolophodon
 		$(<) > $(<).tmp
 	install $(<).tmp $(DESTDIR)$(bindir)/$(<)
 	rm $(<).tmp
+	# manual page:
+	install -d $(DESTDIR)$(mandir)/man1
+	install -p -m644 doc/$(<).1 $(DESTDIR)$(mandir)/man1/
 
 .PHONY: clean
 clean:
-	rm -f *.tmp
+	rm -f *.tmp doc/*.1 doc/*.tmp
 
 .error = GNU make is required
 
