@@ -226,7 +226,7 @@ class Response():
         elif content_encoding == 'identity':
             pass
         else:
-            raise RuntimeError(f'unexpected Content-Encoding: {content_encoding!r}')
+            raise URLError(url, f'unexpected Content-Encoding: {content_encoding!r}')
         self.data = data
         self.headers = response.headers
         self.url = url
@@ -252,7 +252,7 @@ class Response():
         while i < len(s):
             match = regexp.match(s, i)
             if not match:
-                raise RuntimeError(f'cannot parse Link header field: {s!r}')
+                raise URLError(self.url, f'cannot parse Link header field: {s!r}')
             (value, key) = match.groups()
             data[key] = value
             i = match.end()
