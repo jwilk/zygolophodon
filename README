@@ -34,6 +34,9 @@ Usage
                        https://DOMAIN/notes/IDENT (Iceshrimp)
                        https://DOMAIN/notice/IDENT (Pleroma)
                        https://DOMAIN/tag/TAG (Pleroma)
+                       https://bsky.app/profile/USER (Bluesky)
+                       https://bsky.app/profile/USER/post/IDENT (Bluesky)
+                       https://bsky.app/hashtag/TAG (Bluesky)
 
    options:
      -h, --help        show this help message and exit

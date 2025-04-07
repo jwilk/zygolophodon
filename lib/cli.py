@@ -24,6 +24,7 @@ import lib.utils
 import lib.www
 
 import lib.mastodon
+import lib.bluesky
 
 __version__ = '0.1'
 
