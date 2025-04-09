@@ -1,6 +1,8 @@
 .\" Copyright © 2025 Jakub Wilk <jwilk@jwilk.net>
 .\" SPDX-License-Identifier: MIT
 
+.\" # SHA-256(help) = 9caac3c1e2d70e96358b6e7d184d4b46ac8365ce0ed608cf5265794823395f57
+
 .TH ZYGOLOPHODON 1 2025-02-01 "zygolophodon {{VERSION}}"
 .SH NAME
 zygolophodon \- CLI for reading Mastodon posts
