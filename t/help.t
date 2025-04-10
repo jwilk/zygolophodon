@@ -18,6 +18,8 @@ else
     diff -u <(cat <<< "$xout") <(cat <<< "$out") | sed -e 's/^/# /'
     echo 'not ok 1'
 fi
+# chop off the part that's auto-generated in the man page anyway:
+out=$(sed -e '/^  ADDRESS /,/^$/d' <<< "$out")
 xsum=$(sha256sum <<< "$out")
 xsum=${xsum%% *}
 var='SHA-256(help)'
