@@ -875,7 +875,7 @@ def process_user(instance, username, *, replies=False, media=False, limit):
     else:
         params.exclude_replies = not replies
     posts = instance.fetch_user_posts(user, limit=limit, **vars(params))
-    print_posts(posts)
+    print_posts(posts, separators='=- ')
 
 def process_post(instance, post_id, *, with_replies=True, with_ancestors=False):
     post = instance.fetch_post(post_id)
