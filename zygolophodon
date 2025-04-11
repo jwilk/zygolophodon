@@ -79,7 +79,7 @@ class StdOut(io.TextIOBase):
     def _install_pager(self):
         if not sys.__stdout__.isatty():
             return
-        cmdline = (os.environ.get('PAGER')
+        cmdline = (os.getenv('PAGER')
             or find_command('pager')  # Debian:
             # https://www.debian.org/doc/debian-policy/ch-customized-programs.html#editors-and-pagers
             or 'more'  # POSIX:
