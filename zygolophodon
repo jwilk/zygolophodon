@@ -583,7 +583,7 @@ class Instance(abc.ABC):
     def connect(url):
         # https://docs.joinmastodon.org/methods/instance/#v1
         # FIXME? v1 is deprecated, but OTOH Mastodon before v4.0
-        # and some non-Mastdon instances don't support v2.
+        # and some non-Mastodon instances don't support v2.
         instance = Mastodon(url, None)
         data = instance._fetch('instance')  # pylint: disable=protected-access
         inst_types = sorted(
