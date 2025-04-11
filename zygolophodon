@@ -771,10 +771,8 @@ class Mastodon(Instance):
         q_base_url = re.escape(self.url)
         match = re.fullmatch(q_base_url + '/users/([^/]+)/statuses/([0-9]+)/activity', url or '')
         if match:
-            # FIXME in Mastodon?
-            # Why is the URL unhelpful for reblogs?
-            # https://github.com/mastodon/mastodon/pull/4672
-            # hints this may be deliberate.
+            # https://github.com/mastodon/mastodon/issues/34433
+            # ("reblogs have wrong url")
             (user, post_id) = match.groups()
             url = f'{self.url}/@{user}/{post_id}'
         return url
