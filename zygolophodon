@@ -875,7 +875,7 @@ def process_user(instance, username, *, replies=False, media=False, limit):
         print(fmt_html(user.note))
     if not (media or replies):
         posts = instance.fetch_user_posts(user, limit=limit, pinned=True)
-        limit -= print_posts(posts, pinned=True)
+        limit -= print_posts(posts, separators='=- ', pinned=True)
     params = types.SimpleNamespace()
     if media:
         params.only_media=True
