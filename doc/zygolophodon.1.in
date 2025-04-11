@@ -31,8 +31,30 @@ Show help message and exit.
 .TP
 .B \-\-version
 Show version information and exit.
-.\" .SH ENVIRONMENT
-.\" TODO
+.SH ENVIRONMENT
+.TP
+.B PAGER
+If stdout is a terminal, zygolophodon pipes the output through
+.BR $PAGER .
+The default is
+.B pager
+(if it exists)
+or
+.BR more .
+Setting
+.B PAGER
+to the empty string
+or the value
+.B cat
+disables the use of the pager.
+.\" TODO: Document ZYGOLOPHODON_* vars.
+.TP
+.B LESS
+If this variable is unset,
+zygolophodon sets it to
+.B \-FXK
+(which is equivalent to
+.BR "\-\-quit\-if\-one\-screen \-\-no\-init \-\-quit\-on\-intr" ).
 .SH EXAMPLE
 .EX
 {{EXAMPLE}}
