@@ -49,9 +49,14 @@ def wcswidth(s):
 
 class Symbol():
 
-    def __init__(self, name):
+    @classmethod
+    def get_var(cls, name):
         name = name.upper().replace(' ', '_')
-        text = os.getenv(f'ZYGOLOPHODON_{name}', '*')
+        return f'ZYGOLOPHODON_{name}'
+
+    def __init__(self, name):
+        var = self.get_var(name)
+        text = os.getenv(var, '*')
         if match := re.fullmatch('(.*):([0-9]+)', text):
             (text, width) = match.groups()
             width = int(width)
