@@ -1,3 +1,15 @@
+Overview
+========
+
+**Zygolophodon** is an anonymous command-line interface
+for reading microblogging posts, chiefly for Mastodon.
+
+The following servers are supported:
+
+* Mastodon (≥ 3.4)
+* Iceshrimp, Catodon
+* Pleroma, Akkoma
+
 Usage
 =====
 
