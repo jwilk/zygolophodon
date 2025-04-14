@@ -31,7 +31,7 @@ import urllib.request
 
 type(lambda x, /: x)  # Python >= 3.8 is required
 
-__version__ = '0'  # not released yet
+__version__ = '0.1'
 
 text_width = int(os.getenv('ZYGOLOPHODON_COLUMNS', '78'))
 
