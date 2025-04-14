@@ -20,7 +20,7 @@ fi
 export http_proxy='http://127.0.0.1:9/'
 export https_proxy="$http_proxy"
 export RES_OPTIONS=attempts:0
-xc=0
+xs=0
 base_url=https://mastodon.social
 url="$base_url/@Mastodon"
 echo "# $url"
