@@ -5,7 +5,7 @@
 
 set -e -u
 dir="${0%/*}/.."
-echo 1..3
+echo 1..4
 IFS='(); ' read -r _ changelog_version changelog_dist _ < "$dir/doc/changelog"
 echo "# changelog version = $changelog_version"
 echo "# changelog dist = $changelog_dist"
@@ -31,6 +31,22 @@ then
     echo 'not ok 3'
 else
     echo 'ok 3'
+fi
+man_target="$dir/doc/zygolophodon.1"
+echo "# man page target = $man_target"
+if [[ -f $man_target ]]
+then
+    line=$(MANWIDTH=80 man "$man_target" | tail -n 1)
+    IFS=' "' read -r _ man_version _ <<< "$line"
+    echo "# man page version = $man_version"
+    if [[ $man_version = $changelog_version ]]
+    then
+        echo ok 4
+    else
+        echo not ok 4
+    fi
+else
+    echo 'ok 4 # skip missing man page'
 fi
 
 # vim:ts=4 sts=4 sw=4 et ft=sh
