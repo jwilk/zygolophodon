@@ -45,16 +45,28 @@ def extract_src_vars():
             yield arg
             continue
 
-@contain(set)
-def extract_man_vars():
+def _extract_man_vars_section():
     path = basedir / 'doc/zygolophodon.1.in'
     with open(path, encoding='UTF-8') as file:
         src = file.read()
     match = re.search(r'\n[.]SH ENVIRONMENT\n(.+?\n)[.]SH ', src, re.DOTALL)
     [src] = match.groups()
-    for match in re.finditer(r'^[.]TP\n[.]B (\S+)$', src, re.MULTILINE):
+    return src
+
+@contain(set)
+def _extract_man_vars(regexp):
+    src = _extract_man_vars_section()
+    for match in re.finditer(regexp, src):
         [var] = match.groups()
         yield var
+
+def extract_man_vars():
+    regexp = re.compile(r'^[.]TP\n[.]B (\S+)$', re.MULTILINE)
+    return _extract_man_vars(regexp)
+
+def extract_man_todo_vars():
+    regexp = re.compile(r'.\" TODO: (ZYGOLOPHODON_[A-Z_]+)$', re.MULTILINE)
+    return _extract_man_vars(regexp)
 
 def ok(cond, name, todo=False):
     status = ['not ok', 'ok'][cond]
@@ -64,10 +76,12 @@ def ok(cond, name, todo=False):
 def main():
     src_vars = extract_src_vars()
     man_vars = extract_man_vars()
+    man_todo_vars = extract_man_todo_vars()
     m = len(src_vars) + len(man_vars)
     print(f'1..{m}')
     for var in src_vars:
-        ok(var in man_vars, f'{var} in man', todo=True)
+        todo = var in man_todo_vars
+        ok(var in man_vars, f'{var} in man', todo=todo)
     for var in man_vars:
         ok(var in src_vars, f'{var} in src')
 
