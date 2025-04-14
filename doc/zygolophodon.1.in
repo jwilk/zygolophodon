@@ -58,7 +58,9 @@ to the empty string
 or the value
 .B cat
 disables the use of the pager.
-.\" TODO: Document ZYGOLOPHODON_* vars.
+.\" TODO: ZYGOLOPHODON_COLUMNS
+.\" TODO: ZYGOLOPHODON_LINK_SYMBOL
+.\" TODO: ZYGOLOPHODON_PAPERCLIP
 .TP
 .B LESS
 If this variable is unset,
