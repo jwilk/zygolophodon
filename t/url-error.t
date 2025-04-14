@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 set -e -u
-pdir="${0%/*}/.."
+dir="${0%/*}/.."
 echo 1..2
 unshare_net()
 {
@@ -24,7 +24,7 @@ xs=0
 base_url=https://mastodon.social
 url="$base_url/@Mastodon"
 echo "# $url"
-err=$(unshare_net "$pdir/zygolophodon" "$url" 2>&1 >/dev/null) || xs=$?
+err=$(unshare_net "$dir/zygolophodon" "$url" 2>&1 >/dev/null) || xs=$?
 echo "# exit status $xs"
 tname='exit status'
 case $xs in

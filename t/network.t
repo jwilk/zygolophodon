@@ -18,7 +18,7 @@ normspace()
 }
 
 tdir="${0%/*}"
-pdir="$tdir/.."
+dir="$tdir/.."
 urls=()
 while read line
 do
@@ -33,7 +33,7 @@ declare -i n=1
 for url in "${urls[@]}"
 do
     rc=0
-    out=$("$pdir/zygolophodon" --limit=2 "$url") || rc=$?
+    out=$("$dir/zygolophodon" --limit=2 "$url") || rc=$?
     sed -e 's/^/# /' <<< "$out"
     if [[ $rc = 0 ]]
     then

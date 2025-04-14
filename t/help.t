@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: MIT
 
 set -e -u
-pdir="${0%/*}/.."
+dir="${0%/*}/.."
 echo 1..2
-xout=$(< "$pdir/README")
+xout=$(< "$dir/README")
 xout=${xout#*$'\n   $ zygolophodon --help\n   '}
 xout=${xout%%$'\n\n'[^ ]*}
 xout=${xout//$'\n   '/$'\n'}
-out=$("$pdir/zygolophodon" --help)
+out=$("$dir/zygolophodon" --help)
 if [[ "$out" = "$xout" ]]
 then
     echo 'ok 1'
@@ -28,7 +28,7 @@ declare -i n=2
 t_sync()
 {
     path="$1"
-    line=$(grep -F " $var = " < "$pdir/$path")
+    line=$(grep -F " $var = " < "$dir/$path")
     sum=${line##*" $var = "}
     if [[ $sum = $xsum ]]
     then
