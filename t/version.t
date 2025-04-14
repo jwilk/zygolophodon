@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: MIT
 
 set -e -u
-pdir="${0%/*}/.."
+dir="${0%/*}/.."
 echo 1..1
-if out=$("$pdir/zygolophodon" --version)
+if out=$("$dir/zygolophodon" --version)
 then
     sed -e 's/^/# /' <<< "$out"
     case $out in
