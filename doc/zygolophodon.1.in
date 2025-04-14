@@ -12,7 +12,18 @@ zygolophodon \- CLI for reading Mastodon posts
 .RB [ \-\-with\-ancestors ]
 .I ADDRESS
 .SH DESCRIPTION
-.\" TODO: Actually explain what it does.
+.B Zygolophodon
+is an anonymous command-line interface
+for reading microblogging posts,
+chiefly for Mastodon.
+.SS Supported servers
+.IP \(bu 2
+Mastodon (\(>= 3.4)
+.IP \(bu 2
+Iceshrimp, Catodon
+.IP \(bu 2
+Pleroma, Akkoma
+.SS Supported addresses
 The following address schemes are supported:
 {{ADDRESS-LIST}}
 .SH OPTIONS
