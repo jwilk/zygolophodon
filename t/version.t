@@ -25,7 +25,7 @@ else
 fi
 if [ -d "$dir/.git" ]
 then
-    echo 'ok 3 # skip git checkout'
+    echo 'ok 3 # SKIP git checkout'
 elif [ "$changelog_dist" = UNRELEASED ]
 then
     echo 'not ok 3'
@@ -46,7 +46,7 @@ then
         echo not ok 4
     fi
 else
-    echo 'ok 4 # skip missing man page'
+    echo 'ok 4 # SKIP missing man page'
 fi
 
 # vim:ts=4 sts=4 sw=4 et ft=sh
