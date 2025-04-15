@@ -20,7 +20,7 @@ normspace()
 }
 
 urls=()
-while read line
+while read -r line
 do
     line=${line%%#*}
     line=$(normspace "$line")
