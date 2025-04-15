@@ -5,6 +5,8 @@
 
 set -e -u
 
+. "${0%/*}/common.sh"
+
 if [ -z "${ZYGOLOPHODON_NETWORK_TESTING-}" ]
 then
     echo '1..0 # SKIP set ZYGOLOPHODON_NETWORK_TESTING=1 to opt in to network testing'
@@ -17,8 +19,6 @@ normspace()
     printf '%s' "${s% }"
 }
 
-tdir="${0%/*}"
-dir="$tdir/.."
 urls=()
 while read line
 do
@@ -33,7 +33,7 @@ declare -i n=1
 for url in "${urls[@]}"
 do
     rc=0
-    out=$("$dir/zygolophodon" --limit=2 "$url") || rc=$?
+    out=$("$prog" --limit=2 "$url") || rc=$?
     sed -e 's/^/# /' <<< "$out"
     if [[ $rc = 0 ]]
     then

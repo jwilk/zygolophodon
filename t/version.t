@@ -4,12 +4,14 @@
 # SPDX-License-Identifier: MIT
 
 set -e -u
-dir="${0%/*}/.."
+
+. "${0%/*}/common.sh"
+
 echo 1..4
 IFS='(); ' read -r _ changelog_version changelog_dist _ < "$dir/doc/changelog"
 echo "# changelog version = $changelog_version"
 echo "# changelog dist = $changelog_dist"
-if out=$("$dir/zygolophodon" --version)
+if out=$("$prog" --version)
 then
     echo ok 1
     sed -e 's/^/# /' <<< "$out"

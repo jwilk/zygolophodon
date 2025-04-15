@@ -4,13 +4,15 @@
 # SPDX-License-Identifier: MIT
 
 set -e -u
-dir="${0%/*}/.."
+
+. "${0%/*}/common.sh"
+
 echo 1..2
 xout=$(< "$dir/README")
 xout=${xout#*$'\n   $ zygolophodon --help\n   '}
 xout=${xout%%$'\n\n'[^ ]*}
 xout=${xout//$'\n   '/$'\n'}
-out=$("$dir/zygolophodon" --help)
+out=$("$prog" --help)
 if [[ "$out" = "$xout" ]]
 then
     echo 'ok 1'
