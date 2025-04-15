@@ -41,7 +41,7 @@ then
     line=$(MANWIDTH=80 man "$man_target" | tail -n 1)
     IFS=' "' read -r _ man_version _ <<< "$line"
     echo "# man page version = $man_version"
-    if [[ $man_version = $changelog_version ]]
+    if [ "$man_version" = "$changelog_version" ]
     then
         echo ok 4
     else

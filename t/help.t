@@ -32,7 +32,7 @@ t_sync()
     path="$1"
     line=$(grep -F " $var = " < "$dir/$path")
     sum=${line##*" $var = "}
-    if [[ $sum = $xsum ]]
+    if [ "$sum" = "$xsum" ]
     then
         echo ok $n "$path"
     else
