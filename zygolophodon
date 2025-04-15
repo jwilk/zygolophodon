@@ -588,6 +588,7 @@ class Instance(abc.ABC):
     @staticmethod
     def connect(url):
         # https://docs.joinmastodon.org/methods/instance/#v1
+        # available since Mastodon v1.1
         # FIXME? v1 is deprecated, but OTOH Mastodon before v4.0
         # and some non-Mastodon instances don't support v2.
         instance = Mastodon(url, None)
@@ -614,6 +615,7 @@ class Instance(abc.ABC):
 
     def fetch_user_by_name(self, name):
         # https://docs.joinmastodon.org/methods/accounts/#lookup
+        # available since Mastodon v3.4
         q_name = urlquote(name)
         return self._fetch(f'accounts/lookup?acct={q_name}')
 
@@ -642,23 +644,27 @@ class Instance(abc.ABC):
 
     def fetch_user_posts(self, user, *, limit, **params):
         # https://docs.joinmastodon.org/methods/accounts/#statuses
+        # available since Mastodon v2.7
         url = f'accounts/{user.id}/statuses'
         return self._fetch_posts(url, limit=limit, **params)
 
     def fetch_tag_posts(self, tag_name, *, limit, **params):
         # https://docs.joinmastodon.org/methods/timelines/#tag
+        # available since Mastodon v0.1
         q_tag = urlquote(tag_name)
         url = f'timelines/tag/{q_tag}'
         return self._fetch_posts(url, limit=limit, **params)
 
     def fetch_post(self, post_id):
         # https://docs.joinmastodon.org/methods/statuses/#get
+        # available since Mastodon v2.7
         post = self._fetch(f'statuses/{post_id}')
         self.fix_post(post)
         return post
 
     def fetch_post_context(self, post_id, ancestors=True, descendants=True):
         # https://docs.joinmastodon.org/methods/statuses/#context
+        # available since Mastodon v0.1
         if not (ancestors or descendants):
             # shortcut:
             return Dict(ancestors=None, descendants=None)
