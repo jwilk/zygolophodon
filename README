@@ -9,6 +9,7 @@ The following servers are supported:
 * Mastodon (≥ 3.4)
 * Iceshrimp, Catodon
 * Pleroma (≥ 2.5), Akkoma (≥ 2.5)
+* Bluesky
 
 Usage
 =====

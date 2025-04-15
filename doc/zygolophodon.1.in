@@ -23,6 +23,8 @@ Mastodon (\(>= 3.4)
 Iceshrimp, Catodon
 .IP \(bu 2
 Pleroma (\(>= 2.5), Akkoma (\(>= 2.5)
+.IP \(bu 2
+Bluesky
 .SS Supported addresses
 The following address schemes are supported:
 {{ADDRESS-LIST}}
