@@ -562,6 +562,8 @@ class Instance(abc.ABC):
 
     types = []
 
+    tag_url_template = abstractattribute()
+
     post_url_template = abstractattribute()
 
     post_id_regexp = abstractattribute()
@@ -571,6 +573,13 @@ class Instance(abc.ABC):
     def __init__(self, url, data):
         self.url = url
         self.data = data
+
+    @functools.cached_property
+    def api_version(self):
+        match = re.match('([0-9]+([.][0-9]+)*)', self.data.version)
+        version = match.group()
+        version = version.split('.')
+        return tuple(int(x) for x in version)
 
     @classmethod
     def parse_addr(cls, addr):
@@ -713,6 +722,27 @@ class Instance(abc.ABC):
         for post in posts:
             self.fix_post(post)
 
+    def get_tag_url(self, tag_name):
+        q_tag = urlquote(tag_name)
+        template = self.tag_url_template
+        path = re.sub(r'\bTAG\b', re.escape(q_tag), template)
+        return f'{self.url}{path}'
+
+    def dummy_fetch_tag_info(self, tag_name):
+        return Dict(
+            url=self.get_tag_url(tag_name),
+            history=None,
+        )
+
+    def fetch_tag_info(self, tag_name):
+        # https://docs.joinmastodon.org/methods/tags/#get
+        # available since Mastodon v4.0
+        if self.api_version < (4, 0):
+            return self.dummy_fetch_tag_info(tag_name)
+        q_tag = urlquote(tag_name)
+        url = f'tags/{q_tag}'
+        return self._fetch(url)
+
     @classmethod
     def register(cls, instance_type):
         cls.types += [instance_type]
@@ -722,6 +752,8 @@ class Instance(abc.ABC):
 class Mastodon(Instance):
 
     # Codebase: https://github.com/mastodon/mastodon
+
+    tag_url_template = '/tags/TAG'
 
     post_url_template = '/statuses/IDENT'
 
@@ -794,6 +826,8 @@ class Iceshrimp(Instance):
     # Codebase: https://iceshrimp.dev/
     # Forks: https://codeberg.org/catodon/catodon
 
+    tag_url_template = '/tags/TAG'
+
     post_url_template = '/notes/IDENT'
 
     post_id_regexp = '[0-9a-z]{16,24}'
@@ -829,10 +863,18 @@ class Iceshrimp(Instance):
             return 1
         return -1
 
+    def fetch_tag_info(self, tag_name):
+        # FIXME in Iceshrimp?
+        # The API is not available,
+        # despite claimed version 4.2.1 or so.
+        return self.dummy_fetch_tag_info(tag_name)
+
 @Instance.register
 class Pleroma(Instance):
 
     # Codebase: https://git.pleroma.social/pleroma/pleroma
+
+    tag_url_template = '/tag/TAG'
 
     post_url_template = '/notice/IDENT'
 
@@ -873,10 +915,29 @@ class Pleroma(Instance):
             return -1
         return 1
 
+def plural(i, noun):
+    if i == 1:
+        return f'1 {noun}'
+    else:
+        return f'{i} {noun}s'
+
 def process_tag(instance, tag_name, *, limit):
-    # TODO? Print stats from </api/v1/tags/TAG>?
+    info = instance.fetch_tag_info(tag_name)
+    print('Location:', fmt_url(info.url))
+    history = info.history
+    if history:
+        n_posts = sum(int(entry.uses) for entry in history)
+        n_users = sum(int(entry.accounts) for entry in history)
+        n_posts_today = history[0].uses
+        n_days = len(history)
+        print('Statistics:', f'(last {n_days} days)')
+        print(' ', plural(n_posts, 'post'))
+        if n_users > 0:
+            print(' ', plural(n_users, 'user'))
+        if n_posts > 0:
+            print(' ', plural(n_posts_today, 'post'), 'today')
     posts = instance.fetch_tag_posts(tag_name, limit=limit)
-    print_posts(posts, separators=' - ')
+    print_posts(posts, separators='=- ')
 
 def process_user(instance, username, *, replies=False, media=False, limit):
     user = instance.fetch_user_by_name(username)
