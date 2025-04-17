@@ -631,6 +631,7 @@ class Instance(abc.ABC):
     def _fetch_posts(self, url, *, limit, **params):
         url = self._api_url(url)
         page_limit = 40
+        pinned = params.get('pinned', False)
         params['limit'] = min(limit, page_limit)
         q_params = urllib.parse.urlencode(params).lower()
         url += f'?{q_params}'
@@ -638,6 +639,8 @@ class Instance(abc.ABC):
             response = wget(url)
             posts = response.json
             self.fix_posts(posts)
+            for post in posts:
+                post.pinned |= pinned
             yield from posts
             limit -= len(posts)
             next_url = response.links.get('next')
@@ -717,6 +720,10 @@ class Instance(abc.ABC):
             if post.uri == post.reblog.uri:
                 post.uri = None
         post.url = self.get_fixed_post_url(post.url)
+        try:
+            post.pinned
+        except KeyError:
+            post.pinned = False
 
     def fix_posts(self, posts):
         for post in posts:
@@ -947,7 +954,7 @@ def process_user(instance, username, *, replies=False, media=False, limit):
         print(fmt_html(user.note))
     if not (media or replies):
         posts = instance.fetch_user_posts(user, limit=limit, pinned=True)
-        limit -= print_posts(posts, separators='=- ', pinned=True)
+        limit -= print_posts(posts, separators='=- ')
     params = types.SimpleNamespace()
     if media:
         params.only_media=True
@@ -977,7 +984,7 @@ def print_separator(ch):
     print(ch * text_width)
     print()
 
-def print_posts(posts, *, pinned=False, hide_in_reply_to=False, separators='-- '):
+def print_posts(posts, *, hide_in_reply_to=False, separators='-- '):
     def print_sep(i):
         ch = separators[i]
         if ch.isspace():
@@ -986,7 +993,7 @@ def print_posts(posts, *, pinned=False, hide_in_reply_to=False, separators='-- '
     n = 0
     for n, post in enumerate(posts, start=1):
         print_sep(n > 1)
-        print_post(post, pinned=pinned, hide_in_reply_to=hide_in_reply_to)
+        print_post(post, hide_in_reply_to=hide_in_reply_to)
     if n > 0:
         print_sep(-1)
     return n
@@ -1000,13 +1007,13 @@ def normalize_lang(lang):
 
 paperclip = Symbol('paperclip')
 
-def print_post(post, *, pinned=False, hide_in_reply_to=False):
+def print_post(post, *, hide_in_reply_to=False):
     url = post.url or post.uri
     if url:
         print('Location:', fmt_url(url))
     if post.in_reply_to_url and not hide_in_reply_to:
         print('In-Reply-To:', fmt_url(post.in_reply_to_url))
-    if pinned:
+    if post.pinned:
         print('Pinned: yes')
     if post.account:
         # FIXME in Pleroma?
