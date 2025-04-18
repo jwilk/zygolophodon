@@ -555,6 +555,12 @@ def xmain():
 
 urlquote = functools.partial(urllib.parse.quote, safe='')
 
+def expand_template(template, **subst):
+    def repl(match):
+        key = match.group().lower()
+        return subst[key]
+    return re.sub('[A-Z]+', repl, template)
+
 def abstractattribute():
     return abc.abstractmethod(lambda: None)
 
@@ -693,7 +699,7 @@ class Instance(abc.ABC):
 
     def get_post_url(self, *, post_id):
         template = self.post_url_template
-        path = re.sub(r'\bIDENT\b', re.escape(post_id), template)
+        path = expand_template(template, ident=post_id)
         return f'{self.url}{path}'
 
     def get_fixed_post_url(self, url):
@@ -732,7 +738,7 @@ class Instance(abc.ABC):
     def get_tag_url(self, tag_name):
         q_tag = urlquote(tag_name)
         template = self.tag_url_template
-        path = re.sub(r'\bTAG\b', re.escape(q_tag), template)
+        path = expand_template(template, tag=q_tag)
         return f'{self.url}{path}'
 
     def dummy_fetch_tag_info(self, tag_name):
