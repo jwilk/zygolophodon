@@ -1086,6 +1086,8 @@ def print_post(post, *, hide_in_reply_to=False):
         print()
 
 def wrap_text(text, indent=''):
+    # FIXME? BiDi-aware terminals consider newlines as paragraph separators,
+    # so line-wrapping may disrupt BiDi.
     text = text.splitlines()
     for line in text:
         line = textwrap.wrap(line,
