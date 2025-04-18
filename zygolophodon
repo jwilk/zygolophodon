@@ -879,7 +879,7 @@ class Iceshrimp(Instance):
     def fetch_tag_info(self, tag_name):
         # FIXME in Iceshrimp?
         # The API is not available,
-        # despite claimed version 4.2.1 or so.
+        # despite claimed version 4.2 or so.
         return self.dummy_fetch_tag_info(tag_name)
 
 @Instance.register
