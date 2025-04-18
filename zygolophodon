@@ -272,13 +272,46 @@ def wget_json(url):
 class Dict(dict):
     __getattr__ = dict.__getitem__
 
+def isolate_bidi(text):
+    '''
+    * If there are any explicit BDI formatting characters in the text
+      (except PDF, which is harmless by itself),
+      wrap the text with FSI + PDI.
+    * Remove any excess PDIs.
+    * Append PDIs to close any stray isolate initiators.
+    '''
+    #
+    # Documentation: https://unicode.org/reports/tr9/
+    #   ("Unicode Bidirectional Algorithm")
+    #
+    n = None  # the number of unclosed isolate initiators,
+    # or None if the text doesn't need any BiDi treatment
+    def repl(match):
+        nonlocal n
+        if n is None:
+            n = 0
+        s = match.group()
+        if s in '\N{LRI}\N{RLI}\N{FSI}':
+            n += 1
+        elif s == '\N{PDI}':
+            if n == 0:
+                return ''
+            n -= 1
+        return s
+    s = re.sub('[\N{LRE}\N{RLE}\N{LRO}\N{RLO}\N{LRI}\N{RLI}\N{FSI}\N{PDI}]', repl, text)
+    if n is not None:
+        pdi = (n + 1) * '\N{PDI}'
+        s = f'\N{FSI}{s}{pdi}'
+    return s
+
 def fmt_url(url):
     if sys.stdout.isatty():
         return re.sub('(.)', r'_\b\1', url)
     return url
 
 def fmt_user(account):
-    return f'{account.display_name} <{fmt_url(account.url)}>'.lstrip()
+    name = isolate_bidi(account.display_name)
+    return f'{name} <{fmt_url(account.url)}>'.lstrip()
 
 def fmt_date(d):
     d = re.sub(r'[.]\d+', '', d)
