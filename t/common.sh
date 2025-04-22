@@ -5,7 +5,7 @@
 
 tdir="${0%/*}"
 dir="$tdir/.."
-prog="$dir/zygolophodon"
+prog="${ZYGOLOPHODON_TEST_TARGET:-"$dir/zygolophodon"}"
 
 echo "# test target = $prog"
 

@@ -34,9 +34,18 @@ then
 else
     echo 'ok 3'
 fi
-man_target="$dir/doc/zygolophodon.1"
+if [[ $prog = zygolophodon ]]
+then
+    man_target=$prog
+else
+    man_target="$dir/doc/zygolophodon.1"
+    if [[ -f $man_target ]]
+    then
+        man_target=''
+    fi
+fi
 echo "# man page target = $man_target"
-if [[ -f $man_target ]]
+if [[ -n $man_target ]]
 then
     line=$(MANWIDTH=80 man "$man_target" | tail -n 1)
     IFS=' "' read -r _ man_version _ <<< "$line"

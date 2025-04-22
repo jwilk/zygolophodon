@@ -30,7 +30,7 @@ declare -i n=2
 t_sync()
 {
     path="$1"
-    line=$(grep -F " $var = " < "$dir/$path")
+    line=$(grep -F " $var = " < "$path")
     sum=${line##*" $var = "}
     if [ "$sum" = "$xsum" ]
     then
@@ -40,6 +40,12 @@ t_sync()
     fi
     n+=1
 }
-t_sync 'doc/zygolophodon.1.in'
+if [[ $prog = zygolophodon ]]
+then
+    man_target=$(man -w $prog)
+else
+    man_target="$dir/doc/zygolophodon.1.in"
+fi
+t_sync "$man_target"
 
 # vim:ts=4 sts=4 sw=4 et ft=sh

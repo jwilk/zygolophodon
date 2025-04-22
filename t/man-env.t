@@ -6,8 +6,11 @@
 
 import ast
 import functools
+import os
 import pathlib
 import re
+import shutil
+import subprocess
 import types
 
 basedir = pathlib.Path(__file__).parent.parent
@@ -22,7 +25,11 @@ def contain(ctype=list):
 
 @contain(set)
 def extract_src_vars():
-    path = basedir / 'zygolophodon'
+    target = os.getenv('ZYGOLOPHODON_TEST_TARGET')
+    if target is None:
+        path = basedir / 'zygolophodon'
+    else:
+        path = shutil.which(target)
     with open(path, encoding='UTF-8') as file:
         src = file.read()
     code = compile(src, path, 'exec')
@@ -46,7 +53,12 @@ def extract_src_vars():
             continue
 
 def _extract_man_vars_section():
-    path = basedir / 'doc/zygolophodon.1.in'
+    target = os.getenv('ZYGOLOPHODON_TEST_TARGET')
+    if target == 'zygolophodon':
+        proc = subprocess.run(['man', '-w', target], stdout=subprocess.PIPE, check=True)
+        path = os.fsdecode(proc.stdout.rstrip(b'\n'))
+    else:
+        path = basedir / 'doc/zygolophodon.1.in'
     with open(path, encoding='UTF-8') as file:
         src = file.read()
     match = re.search(r'\n[.]SH ENVIRONMENT\n(.+?\n)[.]SH ', src, re.DOTALL)
