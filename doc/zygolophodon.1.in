@@ -22,7 +22,7 @@ Mastodon (\(>= 3.4)
 .IP \(bu 2
 Iceshrimp, Catodon
 .IP \(bu 2
-Pleroma, Akkoma
+Pleroma (\(>= 2.5), Akkoma (\(>= 2.5)
 .SS Supported addresses
 The following address schemes are supported:
 {{ADDRESS-LIST}}
