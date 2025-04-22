@@ -663,7 +663,10 @@ class Instance(abc.ABC):
 
     def fetch_user_by_name(self, name):
         # https://docs.joinmastodon.org/methods/accounts/#lookup
-        # available since Mastodon v3.4
+        # available since:
+        # - Mastodon v3.4
+        # - Pleroma v2.5
+        # - Akkoma v2.5
         q_name = urlquote(name)
         return self._fetch(f'accounts/lookup?acct={q_name}')
 
