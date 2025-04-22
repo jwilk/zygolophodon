@@ -8,7 +8,7 @@ The following servers are supported:
 
 * Mastodon (≥ 3.4)
 * Iceshrimp, Catodon
-* Pleroma, Akkoma
+* Pleroma (≥ 2.5), Akkoma (≥ 2.5)
 
 Usage
 =====
