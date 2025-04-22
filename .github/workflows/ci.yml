@@ -49,6 +49,11 @@ jobs:
       run: |
         cd /
         man 1 zygolophodon | grep -A 10 -w ZYGOLOPHODON
+    - name: run post-install tests
+      run: |
+        rm zygolophodon doc/*.1 doc/*.1.in
+        make test-installed verbose=1
+        git restore .
     - name: run pydiatra
       run: |
         python3 -m pip install pydiatra
