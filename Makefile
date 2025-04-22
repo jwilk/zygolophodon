@@ -31,6 +31,16 @@ install: zygolophodon all
 	install -d $(DESTDIR)$(mandir)/man1
 	install -p -m644 doc/$(<).1 $(DESTDIR)$(mandir)/man1/
 
+.PHONY: test
+test: verbose=
+test: zygolophodon all
+	prove $(and $(verbose),-v)
+
+.PHONY: test-installed
+test-installed: verbose=
+test-installed: $(or $(shell command -v zygolophodon;),$(bindir)/zygolophodon)
+	ZYGOLOPHODON_TEST_TARGET=zygolophodon prove $(and $(verbose),-v)
+
 .PHONY: clean
 clean:
 	rm -f *.tmp doc/*.1 doc/*.tmp
