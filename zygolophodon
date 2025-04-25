@@ -682,7 +682,7 @@ class Instance(abc.ABC):
             posts = response.json
             self.fix_posts(posts)
             for post in posts:
-                post.pinned |= pinned
+                post.pinned = post.pinned or pinned
             yield from posts
             limit -= len(posts)
             next_url = response.links.get('next')
@@ -964,6 +964,16 @@ class Pleroma(Instance):
             return -1
         return 1
 
+    def fix_post(self, post):
+        super().fix_post(post)
+        try:
+            pinned_at = post.pleroma.pinned_at
+        except KeyError:
+            # available only since Pleroma v2.4
+            pass
+        else:
+            post.pinned = pinned_at
+
 def plural(i, noun):
     if i == 1:
         return f'1 {noun}'
@@ -1056,7 +1066,12 @@ def print_post(post, *, hide_in_reply_to=False):
     if post.in_reply_to_url and not hide_in_reply_to:
         print('In-Reply-To:', fmt_url(post.in_reply_to_url))
     if post.pinned:
-        print('Pinned: yes')
+        pinned = post.pinned
+        pin_comment = []
+        if isinstance(pinned, str):
+            pin_comment = fmt_date(pinned)
+            pin_comment = [f'({pin_comment})']
+        print('Pinned: yes', *pin_comment)
     if post.account:
         # FIXME in Pleroma?
         # Why is the account information missing
