@@ -459,16 +459,25 @@ class AddrParser():
 
     _groups = set()
 
-    def __init__(self, *templates, post_id_regexp, discard_prefixes=()):
-        self.templates = []
-        self._post_id_regexp = post_id_regexp
-        self._regexps = []
+    def __init__(self, *templates, discard_prefixes=()):
         self._discard_prefixes = discard_prefixes
-        for template in templates:
+        self._raw_templates = templates
+        # These are set later by __set_name__(),
+        # when assigned to an Instance subclass:
+        self.templates = ...
+        self._post_id_regexp = ...
+        self._regexps = ...
+
+    def __set_name__(self, inst_type, _attr_name):
+        self._post_id_regexp = inst_type.post_id_regexp
+        self._regexps = []
+        self.templates = []
+        for template in self._raw_templates:
             if template[0] == '/':
                 template = f'https://DOMAIN{template}'
             self._add_template(template)
         del self._discard_prefixes
+        del self._raw_templates
 
     def _add_template(self, template):
         self.templates += [template]
@@ -852,7 +861,6 @@ class Mastodon(Instance):
         '/users/USER/statuses/NNNNNN',
         #
         discard_prefixes={'deck', 'web'},
-        post_id_regexp=post_id_regexp,
     )
 
     @classmethod
@@ -903,7 +911,6 @@ class Iceshrimp(Instance):
 
     addr_parser = AddrParser(
         '/notes/IDENT',
-        post_id_regexp=post_id_regexp,
     )
 
     @classmethod
@@ -953,7 +960,6 @@ class Pleroma(Instance):
         # TODO? '/USER'?
         # But eww, that's awfully generic.
         # In the mean time /users/USER works already.
-        post_id_regexp=post_id_regexp,
     )
 
     @classmethod
