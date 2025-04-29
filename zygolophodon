@@ -1100,6 +1100,7 @@ def print_post(post, *, hide_in_reply_to=False):
         print(text)
     print()
     for att in post.media_attachments or ():
+        # TODO? Render the images with chafa?
         print(paperclip, fmt_url(att.url))
         print()
         text = att.description or ''
