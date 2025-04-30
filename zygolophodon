@@ -598,10 +598,17 @@ def xmain():
 
 urlquote = functools.partial(urllib.parse.quote, safe='')
 
+class InternalError(RuntimeError):
+    pass
+
 def expand_template(template, **subst):
     def repl(match):
-        key = match.group().lower()
-        return subst[key]
+        key = match.group()
+        lkey = key.lower()
+        try:
+            return subst[lkey]
+        except KeyError:
+            raise InternalError(f'cannot expand {key} in template {template!r}') from None
     return re.sub('[A-Z]+', repl, template)
 
 def abstractattribute():
