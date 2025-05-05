@@ -7,11 +7,14 @@ set -e -u
 
 . "${0%/*}/common.sh"
 
-if [ -z "${ZYGOLOPHODON_NETWORK_TESTING-}" ]
-then
-    plan 0 'set ZYGOLOPHODON_NETWORK_TESTING=1 to opt in to network testing'
-    exit 0
-fi
+case " $* " in
+    *' --network '*)
+        ;;
+    *)
+        plan 0 'use --network to opt in to network testing'
+        exit 0
+        ;;
+esac
 
 normspace()
 {

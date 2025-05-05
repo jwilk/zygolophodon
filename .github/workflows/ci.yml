@@ -33,8 +33,7 @@ jobs:
         make test verbose=1
     - name: run network tests
       run: |
-        export ZYGOLOPHODON_NETWORK_TESTING=1
-        prove -v t/network.t
+        prove -v t/network.t '::' --network
     - name: install
       run: |
         make install PREFIX=~/.local
