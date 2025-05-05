@@ -7,6 +7,15 @@ tdir="${0%/*}"
 dir="$tdir/.."
 prog="${ZYGOLOPHODON_TEST_TARGET:-"$dir/zygolophodon"}"
 
-echo "# test target = $prog"
+plan()
+{
+    local extra=''
+    if [ $1 -eq 0 ]
+    then
+        extra=" # SKIP $2"
+    fi
+    printf '1..%d%s\n' "$1" "$extra"
+    printf '# test target = %s\n' "$prog"
+}
 
 # vim:ts=4 sts=4 sw=4 et ft=sh

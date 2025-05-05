@@ -7,7 +7,7 @@ set -e -u
 
 . "${0%/*}/common.sh"
 
-echo 1..2
+plan 2
 
 err=$("$prog" moo 2>&1 >/dev/null) || xs=$?
 echo "# exit status $xs"

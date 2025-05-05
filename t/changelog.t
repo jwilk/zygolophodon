@@ -7,7 +7,7 @@ set -e -u
 
 . "${0%/*}/common.sh"
 
-echo 1..1
+plan 1
 if ! command -v dpkg-parsechangelog > /dev/null
 then
     echo 'ok 1 # SKIP missing dpkg-parsechangelog(1)'

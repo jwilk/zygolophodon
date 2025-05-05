@@ -7,7 +7,7 @@ set -e -u
 
 . "${0%/*}/common.sh"
 
-echo 1..4
+plan 4
 IFS='(); ' read -r _ changelog_version changelog_dist _ < "$dir/doc/changelog"
 echo "# changelog version = $changelog_version"
 echo "# changelog dist = $changelog_dist"

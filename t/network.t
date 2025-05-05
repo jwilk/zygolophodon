@@ -9,7 +9,7 @@ set -e -u
 
 if [ -z "${ZYGOLOPHODON_NETWORK_TESTING-}" ]
 then
-    echo '1..0 # SKIP set ZYGOLOPHODON_NETWORK_TESTING=1 to opt in to network testing'
+    plan 0 'set ZYGOLOPHODON_NETWORK_TESTING=1 to opt in to network testing'
     exit 0
 fi
 

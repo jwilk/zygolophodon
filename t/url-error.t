@@ -7,7 +7,7 @@ set -e -u
 
 . "${0%/*}/common.sh"
 
-echo 1..2
+plan 2
 unshare_net()
 {
     unshare --user --net "$@"
