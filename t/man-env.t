@@ -15,15 +15,15 @@ import types
 
 basedir = pathlib.Path(__file__).parent.parent
 
-def contain(ctype=list):
-    def wrap(f):
-        @functools.wraps(f)
-        def new_f(*args, **kwargs):
-            return ctype(f(*args, **kwargs))
-        return new_f
-    return wrap
+def compose(f):
+    def eff(g):
+        @functools.wraps(g)
+        def f_g(*args, **kwargs):
+            return f(g(*args, **kwargs))
+        return f_g
+    return eff
 
-@contain(set)
+@compose(set)
 def extract_src_vars():
     target = os.getenv('ZYGOLOPHODON_TEST_TARGET')
     if target is None:
@@ -65,7 +65,7 @@ def _extract_man_vars_section():
     [src] = match.groups()
     return src
 
-@contain(set)
+@compose(set)
 def _extract_man_vars(regexp):
     src = _extract_man_vars_section()
     for match in re.finditer(regexp, src):
