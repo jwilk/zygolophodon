@@ -39,7 +39,7 @@ test: zygolophodon all
 .PHONY: test-installed
 test-installed: verbose=
 test-installed: $(or $(shell command -v zygolophodon;),$(bindir)/zygolophodon)
-	ZYGOLOPHODON_TEST_TARGET=zygolophodon prove $(and $(verbose),-v)
+	prove $(and $(verbose),-v) :: --installed
 
 .PHONY: clean
 clean:

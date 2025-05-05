@@ -5,7 +5,12 @@
 
 tdir="${0%/*}"
 dir="$tdir/.."
-prog="${ZYGOLOPHODON_TEST_TARGET:-"$dir/zygolophodon"}"
+case " $* " in
+    *' --installed '*)
+        prog='zygolophodon';;
+    *)
+        prog="$dir/zygolophodon";;
+esac
 
 plan()
 {

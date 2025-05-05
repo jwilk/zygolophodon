@@ -11,6 +11,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+import sys
 import types
 
 basedir = pathlib.Path(__file__).parent.parent
@@ -25,11 +26,10 @@ def compose(f):
 
 @compose(set)
 def extract_src_vars():
-    target = os.getenv('ZYGOLOPHODON_TEST_TARGET')
-    if target is None:
-        path = basedir / 'zygolophodon'
+    if '--installed' in sys.argv:
+        path = shutil.which('zygolophodon')
     else:
-        path = shutil.which(target)
+        path = basedir / 'zygolophodon'
     with open(path, encoding='UTF-8') as file:
         src = file.read()
     code = compile(src, path, 'exec')
@@ -53,9 +53,8 @@ def extract_src_vars():
             continue
 
 def _extract_man_vars_section():
-    target = os.getenv('ZYGOLOPHODON_TEST_TARGET')
-    if target == 'zygolophodon':
-        proc = subprocess.run(['man', '-w', target], stdout=subprocess.PIPE, check=True)
+    if '--installed' in sys.argv:
+        proc = subprocess.run(['man', '-w', 'zygolophodon'], stdout=subprocess.PIPE, check=True)
         path = os.fsdecode(proc.stdout.rstrip(b'\n'))
     else:
         path = basedir / 'doc/zygolophodon.1.in'
