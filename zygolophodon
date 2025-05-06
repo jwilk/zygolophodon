@@ -264,11 +264,6 @@ class Response():
             i = match.end()
         return data
 
-wget = UserAgent.get
-
-def wget_json(url):
-    return wget(url).json
-
 class Dict(dict):
     __getattr__ = dict.__getitem__
 
@@ -722,7 +717,7 @@ class Mastodonoid(Instance):
 
     def _fetch(self, url):
         url = self._api_url(url)
-        return wget_json(url)
+        return UserAgent.get(url).json
 
     def fetch_user_by_name(self, name):
         # https://docs.joinmastodon.org/methods/accounts/#lookup
@@ -741,7 +736,7 @@ class Mastodonoid(Instance):
         q_params = urllib.parse.urlencode(params).lower()
         url += f'?{q_params}'
         while limit > 0:
-            response = wget(url)
+            response = UserAgent.get(url)
             posts = response.json
             self.fix_posts(posts)
             for post in posts:
