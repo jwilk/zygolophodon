@@ -182,6 +182,13 @@ class URLError(RuntimeError):
 
     def __init__(self, url, reason):
         self.url = url
+        self.json = None
+        if isinstance(reason, urllib.error.HTTPError) and Response.is_json(reason):
+            response = Response(reason, url=url)
+            try:
+                self.json = json.loads(response.data, object_hook=Dict)
+            except json.JSONDecodeError:
+                pass
         self.reason = reason
 
     def __str__(self):
