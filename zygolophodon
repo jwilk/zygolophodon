@@ -182,12 +182,13 @@ class URLError(RuntimeError):
 
     def __init__(self, url, reason):
         self.url = url
-        if isinstance(reason, Exception):
-            reason = _fmt_url_error(reason)
-        self._message = reason
+        self.reason = reason
 
     def __str__(self):
-        return self._message
+        reason = self.reason
+        if isinstance(reason, Exception):
+            reason = _fmt_url_error(reason)
+        return reason
 
 class UserAgent():
 
