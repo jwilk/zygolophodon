@@ -727,9 +727,24 @@ class Mastodonoid(Instance):
     def _api_url(self, url):
         return f'{self.url}/api/v1/{url}'
 
+    def _wget(self, url):
+        try:
+            return UserAgent.get(url)
+        except URLError as exc:
+            if exc.json is None:
+                raise
+            if isinstance(exc.reason, urllib.error.HTTPError):
+                try:
+                    msg = exc.json.error
+                except KeyError:
+                    pass
+                else:
+                    exc.reason.msg = msg
+            raise
+
     def _fetch(self, url):
         url = self._api_url(url)
-        return UserAgent.get(url).json
+        return self._wget(url).json
 
     def fetch_user_by_name(self, name):
         # https://docs.joinmastodon.org/methods/accounts/#lookup
@@ -748,7 +763,7 @@ class Mastodonoid(Instance):
         q_params = urllib.parse.urlencode(params).lower()
         url += f'?{q_params}'
         while limit > 0:
-            response = UserAgent.get(url)
+            response = self._wget(url)
             posts = response.json
             self.fix_posts(posts)
             for post in posts:
