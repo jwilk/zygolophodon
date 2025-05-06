@@ -237,15 +237,19 @@ class Response():
         self.headers = response.headers
         self.url = url
 
+    def is_json(self):
+        ct = self.headers.get('Content-Type', '')
+        match = re.match(r'application/json(;|\Z)', ct)
+        return bool(match)
+
     @property
     def json(self):
+        if not self.is_json():
+            raise URLError(self.url, 'error: non-JSON content')
         try:
             data = json.loads(self.data, object_hook=Dict)
         except json.JSONDecodeError as exc:
-            if re.match(br'<(!DOCTYPE|html)\b', self.data):
-                msg = 'received HTML instead of JSON'
-            else:
-                msg = f'JSON decoding error: {exc}'
+            msg = f'JSON decoding error: {exc}'
             raise URLError(self.url, msg) from exc
         return data
 
