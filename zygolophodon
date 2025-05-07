@@ -187,7 +187,7 @@ class URLError(RuntimeError):
             response = Response(reason, url=url)
             try:
                 self.json = json.loads(response.data, object_hook=Dict)
-            except json.JSONDecodeError:
+            except (json.JSONDecodeError, UnicodeError):
                 pass
         self.reason = reason
 
@@ -256,7 +256,7 @@ class Response():
             raise URLError(self.url, 'error: non-JSON content')
         try:
             data = json.loads(self.data, object_hook=Dict)
-        except json.JSONDecodeError as exc:
+        except (json.JSONDecodeError, UnicodeError) as exc:
             msg = f'JSON decoding error: {exc}'
             raise URLError(self.url, msg) from exc
         return data
