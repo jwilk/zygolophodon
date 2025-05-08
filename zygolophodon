@@ -312,6 +312,7 @@ def isolate_bidi(text):
     return s
 
 def fmt_url(url):
+    url = str(url)
     if sys.stdout.isatty():
         return re.sub('(.)', r'_\b\1', url)
     return url
