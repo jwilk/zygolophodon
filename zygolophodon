@@ -495,20 +495,6 @@ class AddrParser():
             tag=r'[^/?#\0-\40]+',
             ident=self._post_id_regexp
         )
-        def repl_ident(match):
-            s = match.group()
-            if match.start() == 0 and s == 'https':
-                return s
-            if s.isupper():
-                group = s
-                if group == 'NNNNNN':
-                    group = 'IDENT'
-                regexp = group2regexp[group.lower()]
-            else:
-                group = s
-                regexp = re.escape(s)
-            self._groups.add(group.lower())
-            return f'(?P<{group}>{regexp})'
         discard = self._discard_prefixes
         def repl_punct(match):
             s = match.group()
@@ -523,6 +509,20 @@ class AddrParser():
             discard_re = str.join('|', map(re.escape, discard))
             discard_re = f'(?:{discard_re})'
             template = template.replace('/DOMAIN/', f'/DOMAIN/(?:{discard_re}/)*')
+        def repl_ident(match):
+            s = match.group()
+            if match.start() == 0 and s == 'https':
+                return s
+            if s.isupper():
+                group = s
+                if group == 'NNNNNN':
+                    group = 'IDENT'
+                regexp = group2regexp[group.lower()]
+            else:
+                group = s
+                regexp = re.escape(s)
+            self._groups.add(group.lower())
+            return f'(?P<{group}>{regexp})'
         regexp = re.sub(r'(?<![:|\w])\w+', repl_ident, template)
         regexp = re.compile(regexp)
         self._regexps += [regexp]
