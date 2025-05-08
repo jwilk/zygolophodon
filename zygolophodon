@@ -495,7 +495,7 @@ class AddrParser():
             tag=r'[^/?#\0-\40]+',
             ident=self._post_id_regexp
         )
-        def repl(match):
+        def repl_ident(match):
             s = match.group()
             if match.start() == 0 and s == 'https':
                 return s
@@ -510,11 +510,20 @@ class AddrParser():
             self._groups.add(group.lower())
             return f'(?P<{group}>{regexp})'
         discard = self._discard_prefixes
+        def repl_punct(match):
+            s = match.group()
+            try:
+                if s != '.' and re.fullmatch(s, s):
+                    return s
+            except re.error:
+                pass
+            return re.escape(s)
+        template = re.sub(r'\W', repl_punct, template)
         if discard:
             discard_re = str.join('|', map(re.escape, discard))
             discard_re = f'(?:{discard_re})'
             template = template.replace('/DOMAIN/', f'/DOMAIN/(?:{discard_re}/)*')
-        regexp = re.sub(r'(?<![:|\w])\w+', repl, template)
+        regexp = re.sub(r'(?<![:|\w])\w+', repl_ident, template)
         regexp = re.compile(regexp)
         self._regexps += [regexp]
 
