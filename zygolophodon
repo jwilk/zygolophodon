@@ -700,6 +700,16 @@ class Instance(abc.ABC):
         cls.types += [instance_type]
         return instance_type
 
+class LazyStr():
+
+    def __init__(self, fn, *args, **kwargs):
+        self._fn = functools.partial(fn, *args, **kwargs)
+
+    def __str__(self):
+        s = self._fn()
+        self._fn = s.__str__
+        return s
+
 class Mastodonoid(Instance):
 
     post_url_template = abstractattribute()
