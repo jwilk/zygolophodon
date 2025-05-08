@@ -776,7 +776,8 @@ class Mastodonoid(Instance):
             posts = response.json
             self.fix_posts(posts)
             for post in posts:
-                post.pinned = post.pinned or pinned
+                if post.pinned is None:
+                    post.pinned = pinned
             yield from posts
             limit -= len(posts)
             next_url = response.links.get('next')
@@ -859,7 +860,7 @@ class Mastodonoid(Instance):
         try:
             post.pinned
         except KeyError:
-            post.pinned = False
+            post.pinned = None
 
     def fix_posts(self, posts):
         for post in posts:
