@@ -1079,13 +1079,19 @@ def process_user(instance, username, *, replies=False, media=False, limit):
     if user.note:
         print()
         print(fmt_html(user.note))
+    seen = set()
     if not (media or replies):
         posts = instance.fetch_user_posts(user, limit=limit, pinned=True)
-        # Snac's Mastodon API yields all posts when we asked for pinned ones:
-        # https://codeberg.org/grunfink/snac2/issues/335
-        # Let's filter out non-pinned posts:
-        posts = (post for post in posts if post.pinned)
-        n = print_posts(posts, separators='=- ')
+        def gen_posts():
+            for post in posts:
+                if not post.pinned:
+                    # Snac's Mastodon API yields all posts when we asked for pinned ones:
+                    # https://codeberg.org/grunfink/snac2/issues/335
+                    # Let's filter out non-pinned posts.
+                    continue
+                yield post
+                seen.add(post.id)
+        n = print_posts(gen_posts(), separators='=- ')
         if n >= limit:
             limit = 0
     params = types.SimpleNamespace()
@@ -1094,6 +1100,8 @@ def process_user(instance, username, *, replies=False, media=False, limit):
     else:
         params.exclude_replies = not replies
     posts = instance.fetch_user_posts(user, limit=limit, **vars(params))
+    # Filter out posts that were already printed as pinned:
+    posts = (post for post in posts if post.id not in seen)
     print_posts(posts, separators='=- ')
 
 def process_post(instance, post_id, *, with_replies=True, with_ancestors=False):
