@@ -682,8 +682,10 @@ class Instance(abc.ABC):
         pass
 
     def get_tag_url(self, tag_name):
-        q_tag = urlquote(tag_name)
         template = self.tag_url_template
+        if template is None:
+            return None
+        q_tag = urlquote(tag_name)
         path = expand_template(template, tag=q_tag)
         return f'{self.url}{path}'
 
@@ -830,6 +832,8 @@ class Mastodonoid(Instance):
 
     def get_post_url(self, *, post_id):
         template = self.post_url_template
+        if template is None:
+            return None
         path = expand_template(template, ident=post_id)
         return f'{self.url}{path}'
 
@@ -947,6 +951,25 @@ class Mastodon(Mastodonoid):
         return url
 
 @Instance.register
+class UntamedMastodonoid(Mastodonoid):
+
+    # fallback for unknown (but known to be unsupported) instance types
+
+    tag_url_template = None
+
+    post_url_template = None
+
+    post_id_regexp = None
+
+    addr_parser = AddrParser()  # dummy
+
+    @classmethod
+    def identify(cls, data):
+        if re.search(r'\b(compatible|really)\b', data.version):
+            return 0.1
+        return -1
+
+@Instance.register
 class Iceshrimp(Mastodonoid):
 
     # Codebase: https://iceshrimp.dev/
@@ -1057,7 +1080,10 @@ def plural(i, noun):
 
 def process_tag(instance, tag_name, *, limit):
     info = instance.fetch_tag_info(tag_name)
-    print('Location:', fmt_url(info.url))
+    if info.url:
+        print('Location:', fmt_url(info.url))
+    else:
+        print('Location:', f'(cannot generate URL for tag {tag_name!r})')
     history = info.history
     if history:
         n_posts = sum(int(entry.uses) for entry in history)
@@ -1152,8 +1178,11 @@ def print_post(post, *, hide_in_reply_to=False):
     url = post.url or post.uri
     if url:
         print('Location:', fmt_url(url))
-    if post.in_reply_to_url and not hide_in_reply_to:
-        print('In-Reply-To:', fmt_url(post.in_reply_to_url))
+    if post.in_reply_to_id and not hide_in_reply_to:
+        if post.in_reply_to_url:
+            print('In-Reply-To:', fmt_url(post.in_reply_to_url))
+        else:
+            print('In-Reply-To:', f'(cannot generate URL for post id {post.in_reply_to_id})')
     if post.pinned:
         pinned = post.pinned
         pin_comment = []
