@@ -595,6 +595,10 @@ def xmain():
     sys.stdout.flush()
     with StdOut.install():
         instance = match.instance_type.connect(match.url)
+        if isinstance(instance, UntamedMastodonoid):
+            j_version = json.dumps(instance.data.version)
+            msg = f'unsupported instance type (Mastodon API version {j_version})'
+            print('Warning:', msg)
         if match.tag:
             process_tag(instance, match.tag,
                 limit=opts.limit,
