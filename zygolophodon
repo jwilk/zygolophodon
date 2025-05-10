@@ -1085,7 +1085,9 @@ def process_user(instance, username, *, replies=False, media=False, limit):
         # https://codeberg.org/grunfink/snac2/issues/335
         # Let's filter out non-pinned posts:
         posts = (post for post in posts if post.pinned)
-        limit -= print_posts(posts, separators='=- ')
+        n = print_posts(posts, separators='=- ')
+        if n >= limit:
+            limit = 0
     params = types.SimpleNamespace()
     if media:
         params.only_media=True
