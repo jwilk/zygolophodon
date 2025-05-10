@@ -967,6 +967,16 @@ class UntamedMastodonoid(Mastodonoid):
     def identify(cls, data):
         if re.search(r'\b(compatible|really)\b', data.version):
             return 0.1
+        match = re.match('^([0-9]+)[.]', data.version)
+        if match is None:
+            return 0.1
+        [major] = match.groups()
+        major = int(major)
+        if major < 1:
+            # /api/v1/instance was added only in Mastodon 1.1
+            # <https://github.com/mastodon/mastodon/commit/6be7bde24378bcb0>
+            # so this version is clearly a lie.
+            return 0.1
         return -1
 
 @Instance.register
