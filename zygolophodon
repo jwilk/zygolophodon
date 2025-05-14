@@ -1083,10 +1083,9 @@ class Pleroma(Mastodonoid):
             post.pinned = pinned_at
 
 def plural(i, noun):
-    if i == 1:
-        return f'1 {noun}'
-    else:
-        return f'{i} {noun}s'
+    if i != 1:
+        noun += 's'
+    return f'{i} {noun}'
 
 def process_tag(instance, tag_name, *, limit):
     info = instance.fetch_tag_info(tag_name)
