@@ -722,6 +722,10 @@ class Mastodonoid(Instance):
         # available since Mastodon v1.1
         # FIXME? v1 is deprecated, but OTOH Mastodon before v4.0
         # and some non-Mastodon instances don't support v2.
+        #
+        # TODO? Use NodeInfo <https://nodeinfo.diaspora.software/>
+        # for identification?
+        # But it's only available since Mastodon 3.0.
         instance = Mastodon(url, None)
         data = instance._fetch('instance')  # pylint: disable=protected-access
         inst_types = [
