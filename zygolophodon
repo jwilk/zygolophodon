@@ -1023,6 +1023,7 @@ class Iceshrimp(Mastodonoid):
     def identify(cls, data):
         if re.search(r'\b(Iceshrimp|Catodon)\b', data.version):
             return 1
+        # FIXME? Should Iceshrimp.NET be considered supported?
         return -1
 
     def fetch_tag_info(self, tag_name):
