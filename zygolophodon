@@ -869,6 +869,10 @@ class Mastodonoid(Instance):
             post.pinned
         except KeyError:
             post.pinned = None
+        if post.url.startswith(f'{self.url}/'):
+            post.location = post.url
+        else:
+            post.location = self.get_post_url(post_id=post.id)
 
     def fix_posts(self, posts):
         for post in posts:
@@ -1189,9 +1193,10 @@ def normalize_lang(lang):
 paperclip = Symbol('paperclip')
 
 def print_post(post, *, hide_in_reply_to=False):
+    print('Location:', fmt_url(post.location))
     url = post.url or post.uri
-    if url:
-        print('Location:', fmt_url(url))
+    if url and url != post.location:
+        print('Origin:', fmt_url(url))
     if post.in_reply_to_id and not hide_in_reply_to:
         if post.in_reply_to_url:
             print('In-Reply-To:', fmt_url(post.in_reply_to_url))
