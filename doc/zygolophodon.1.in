@@ -42,6 +42,10 @@ Show help message and exit.
 .TP
 .B \-\-version
 Show version information and exit.
+.ig
+.SH OUTPUT FORMAT
+TODO
+..
 .SH ENVIRONMENT
 .TP
 .B PAGER
