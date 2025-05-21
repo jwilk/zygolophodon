@@ -1239,6 +1239,8 @@ def print_post(post, *, hide_in_reply_to=False):
 def wrap_text(text, indent=''):
     # FIXME? BiDi-aware terminals consider newlines as paragraph separators,
     # so line-wrapping may disrupt BiDi.
+    #
+    # FIXME: This line-wraps long URLs, which is clunky.
     text = text.splitlines()
     for line in text:
         line = textwrap.wrap(line,
