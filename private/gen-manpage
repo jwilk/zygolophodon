@@ -18,7 +18,7 @@ def rextract(regexp, text, flags=0):
     regexp = re.compile(regexp, flags=flags)
     match = re.search(regexp, text)
     if match is None:
-        raise RuntimeError(f'{regexp} not found')
+        raise LookupError(f'{regexp} not found')
     return match.group(1)
 
 def addr_to_roff(addr, itype):
@@ -55,12 +55,16 @@ def main():
         addr, itype = match.groups()
         roff_addrs += [addr_to_roff(addr, itype)]
     chunks.address_list = str.join('\n', roff_addrs)
-    example = rextract(r'(^ +[$] zygolophodon https:.+\n(( .*)?\n)+)', readme, flags=re.M)
-    example = textwrap.dedent(example)
-    example = re.sub('^([$] )(.*)', r'.RB "\1" "\2"', example)
-    example = example.translate(charmap)
-    example.encode('ASCII')
-    chunks.example = example
+    try:
+        example = rextract(r'(^ +[$] zygolophodon https:.+\n(( .*)?\n)+)', readme, flags=re.M)
+    except LookupError:
+        pass
+    else:
+        example = textwrap.dedent(example)
+        example = re.sub('^([$] )(.*)', r'.RB "\1" "\2"', example)
+        example = example.translate(charmap)
+        example.encode('ASCII')
+        chunks.example = example
     text = sys.stdin.read()
     def repl(match):
         name = match.group(1)
