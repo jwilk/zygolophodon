@@ -422,8 +422,7 @@ def fmt_html(data):
     parser.close()
     lines = []
     for para in parser.z_state.paras:
-        for line in para.splitlines():
-            lines += wrap_text(line)
+        lines += wrap_text(para)
         lines += ['']
     text = str.join('\n', lines)
     def repl(match):
