@@ -869,7 +869,7 @@ class Mastodonoid(Instance):
             post.pinned
         except KeyError:
             post.pinned = None
-        if post.url.startswith(f'{self.url}/'):
+        if post.url and post.url.startswith(f'{self.url}/'):
             post.location = post.url
         else:
             post.location = self.get_post_url(post_id=post.id)
