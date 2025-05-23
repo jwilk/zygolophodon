@@ -398,6 +398,7 @@ class HTMLParser(html.parser.HTMLParser):
     def handle_data(self, data):
         st = self.z_state
         data = re.sub('[\N{STX}\N{ETX}\N{DC1}\N{DC2}]', '\N{REPLACEMENT CHARACTER}', data)
+        # FIXME: don't replace U+00A0 NO-BREAK SPACE
         data = re.sub(r'\s+', ' ', data)
         if st.a_depth > 0:
             st.a_text += data
