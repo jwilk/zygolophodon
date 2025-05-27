@@ -1,4 +1,4 @@
-# Copyright © 2024 Jakub Wilk <jwilk@jwilk.net>
+# Copyright © 2024-2025 Jakub Wilk <jwilk@jwilk.net>
 # SPDX-License-Identifier: MIT
 
 PYTHON = python3
