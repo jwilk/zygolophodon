@@ -72,9 +72,7 @@ zygolophodon sets it to
 .B \-FXK
 (which is equivalent to
 .BR "\-\-quit\-if\-one\-screen \-\-no\-init \-\-quit\-on\-intr" ).
-.ig
 .SH EXAMPLE
 .EX
-TODO
+{{EXAMPLE}}
 .EE
-..

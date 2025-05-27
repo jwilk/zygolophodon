@@ -41,6 +41,25 @@ Usage
      --limit N         request at most N posts (default: 40)
      --with-ancestors  show also post ancestors
 
+Example
+=======
+
+.. code:: console
+
+   $ zygolophodon https://mastodon.example.org/@cicero/114574908484913091
+   Location: https://mastodon.example.org/@cicero/114574908484913091
+   From: Marcus Tullius Cicero <https://mastodon.example.org/@cicero>
+   Date: 2025-05-26 15:46:00Z
+   Language: la
+
+   #LoremIpsum, quia dolor sit, amet, consectetur, adipisci velit, sed
+   quia non numquam eius modi tempora incidunt, ut labore et dolore magnam
+   aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum
+   exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea
+   commodi consequatur?
+
+   * #LoremIpsum: https://mastodon.example.org/tags/LoremIpsum
+
 Requirements
 ============
 
