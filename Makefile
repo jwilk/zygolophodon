@@ -12,7 +12,7 @@ mandir = $(PREFIX)/share/man
 .PHONY: all
 all: doc/zygolophodon.1
 
-%.1: %.1.in private/gen-manpage
+%.1: %.1.in README private/gen-manpage
 	private/gen-manpage < $(<) > $(@).tmp
 	mv $(@).tmp $(@)
 
