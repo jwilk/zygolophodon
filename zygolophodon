@@ -360,7 +360,11 @@ class HTMLParser(html.parser.HTMLParser):
             return
         if tag == 'a':
             if st.a_depth == 0:
-                st.a_href = dict(attrs).get('href', '')
+                href = dict(attrs).get('href', '')
+                # Let's normalize the URL somewhat,
+                # as per <https://url.spec.whatwg.org/#concept-basic-url-parser>.
+                href = re.sub(r'\A[\0-\40]+|[\0-\40]+\Z|[\n\t]+', '', href)
+                st.a_href = href
             st.a_depth += 1
             return
 
