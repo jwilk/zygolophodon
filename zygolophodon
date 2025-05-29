@@ -384,11 +384,11 @@ class HTMLParser(html.parser.HTMLParser):
                     st.text += f'{cc}{text[1:]}\N{ETX}'
                     st.footnotes[text] = href
                 else:
-                    if st.a_href in {text, f'http://{text}', f'https://{text}'}:
+                    if href in {text, f'http://{text}', f'https://{text}'}:
                         text = ''
                     else:
                         text = f'[{text}]'
-                    st.text += f'{text}\N{STX}{st.a_href}\N{ETX}'
+                    st.text += f'{text}\N{STX}{href}\N{ETX}'
                 st.a_href = ''
                 st.a_text = ''
             return
