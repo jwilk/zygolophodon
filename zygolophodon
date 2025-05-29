@@ -381,6 +381,7 @@ class HTMLParser(html.parser.HTMLParser):
                     # + HASHTAG_RE in <app/models/tag.rb>;
                     # + MENTION_RE in <app/models/account.rb>.
                     cc = '\N{DC1}\N{DC2}'[text[0] != '@']
+                    assert '\n' not in text
                     st.text += f'{cc}{text[1:]}\N{ETX}'
                     st.footnotes[text] = href
                 else:
@@ -388,6 +389,7 @@ class HTMLParser(html.parser.HTMLParser):
                         text = ''
                     else:
                         text = f'[{text}]'
+                    assert '\n' not in text
                     st.text += f'{text}\N{STX}{href}\N{ETX}'
                 st.a_href = ''
                 st.a_text = ''
