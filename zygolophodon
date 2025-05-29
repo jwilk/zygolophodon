@@ -380,9 +380,8 @@ class HTMLParser(html.parser.HTMLParser):
                     # The above should be close enough to Mastodon's own regexps:
                     # + HASHTAG_RE in <app/models/tag.rb>;
                     # + MENTION_RE in <app/models/account.rb>.
-                    cc = '\N{DC1}\N{DC2}'[text[0] != '@']
                     assert '\n' not in text
-                    st.text += f'{cc}{text[1:]}\N{ETX}'
+                    st.text += f'\N{STX}{text}\N{ETX}'
                     st.footnotes[text] = href
                 else:
                     if href in {text, f'http://{text}', f'https://{text}'}:
@@ -390,7 +389,7 @@ class HTMLParser(html.parser.HTMLParser):
                     else:
                         text = f'[{text}]'
                     assert '\n' not in text
-                    st.text += f'{text}\N{STX}{href}\N{ETX}'
+                    st.text += f'{text}<\N{STX}{href}\N{ETX}>'
                 st.a_href = ''
                 st.a_text = ''
             return
@@ -403,7 +402,7 @@ class HTMLParser(html.parser.HTMLParser):
 
     def handle_data(self, data):
         st = self.z_state
-        data = re.sub('[\N{STX}\N{ETX}\N{DC1}\N{DC2}]', '\N{REPLACEMENT CHARACTER}', data)
+        data = re.sub('[\N{STX}\N{ETX}]', '\N{REPLACEMENT CHARACTER}', data)
         data = re.sub(r'[^\S\N{NBSP}\N{NARROW NO-BREAK SPACE}]+', ' ', data)
         if st.a_depth > 0:
             st.a_text += data
@@ -427,21 +426,13 @@ def fmt_html(data):
     parser.close()
     lines = []
     for para in parser.z_state.paras:
-        lines += wrap_text(para)
+        lines += wrap_text(para, protect='\N{STX}\N{ETX}')
         lines += ['']
     text = str.join('\n', lines)
     def repl(match):
-        (url, foottype, footnote) = match.groups()
-        if url is not None:
-            url = fmt_url(url)
-            return f'<{url}>'
-        else:
-            # FIXME: The replacement text is one character shorter
-            # than the input, so it slightly disturbs text wrapping.
-            prefix = '@#'[foottype != '\N{DC1}']
-            footnote = prefix + footnote
-            return fmt_url(footnote)
-    text = re.sub('\N{STX}(.*?)\N{ETX}|([\N{DC1}\N{DC2}])([\\w@_.-]+)\N{ETX}', repl, text, flags=re.DOTALL)
+        [url] = match.groups()
+        return fmt_url(url)
+    text = re.sub('\N{STX}(.*?)\N{ETX}', repl, text, flags=re.DOTALL)
     lines = [text]
     if parser.z_state.footnotes:
         for footnote, url in parser.z_state.footnotes.items():
@@ -1246,20 +1237,49 @@ def print_post(post, *, hide_in_reply_to=False):
             print(line)
         print()
 
-def wrap_text(text, indent=''):
+def wrap_text(text, indent='', protect=None):
     # FIXME? BiDi-aware terminals consider newlines as paragraph separators,
     # so line-wrapping may disrupt BiDi.
-    #
-    # FIXME: This line-wraps long URLs, which is clunky.
     text = text.splitlines()
     for line in text:
-        line = textwrap.wrap(line,
-            width=text_width,
-            initial_indent=indent,
-            subsequent_indent=indent,
-            break_long_words=False,
+        yield wrap_line(line, indent=indent, protect=protect)
+
+def wrap_line(line, indent='', protect=None):
+    tokens = []
+    if protect:
+        [prot_start, prot_end] = protect
+        assert prot_start and prot_end
+        assert '\N{SUB}' not in (prot_start + prot_end)
+        prot_re = re.compile(
+            '\N{SUB}+|'
+            + re.escape(prot_start)
+            + '(.*?)'
+            + re.escape(prot_end)
         )
-        yield str.join('\n', line)
+        def subst(match):
+            nonlocal tokens
+            token = match.group()
+            tokens += [token]
+            n = len(token)
+            if match.group(1) is not None:
+                n -= 2
+            return '\N{SUB}' * n
+        line = re.sub(prot_re, subst, line)
+    lines = textwrap.wrap(line,
+        width=text_width,
+        initial_indent=indent,
+        subsequent_indent=indent,
+        break_long_words=False,
+    )
+    lines = str.join('\n', lines)
+    if tokens:
+        tokens.reverse()
+        def unsubst(match):
+            del match
+            return tokens.pop()
+        lines = re.sub('\N{SUB}+', unsubst, lines)
+    assert not tokens
+    return lines
 
 def main():
     try:
