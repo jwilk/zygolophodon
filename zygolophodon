@@ -892,7 +892,7 @@ class Mastodon(Mastodonoid):
 
     post_url_template = '/statuses/IDENT'
 
-    post_id_regexp = '[0-9]{17,18}'
+    post_id_regexp = '[0-9]{1,18}'
     # Source: lib/mastodon/snowflake.rb
     #
     # Identifiers are decimal integers:
@@ -915,6 +915,10 @@ class Mastodon(Mastodonoid):
     # "2018-05-09T15:14:39"
     # $ qalc -t '"1970-01-01" + ((10 ** 18) >> 16) ms'
     # "2453-07-13T08:30:35"
+    #
+    # However, before Mastodon v2.0,
+    # identifiers were sequential 64-bit(?) integers:
+    # https://github.com/mastodon/mastodon/commit/468523f4ad85f99d
 
     addr_parser = AddrParser(
         # mail-like
