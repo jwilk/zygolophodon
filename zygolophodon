@@ -1108,7 +1108,8 @@ def process_tag(instance, tag_name, *, limit):
         n_users = sum(int(entry.accounts) for entry in history)
         n_posts_today = history[0].uses
         n_days = len(history)
-        print('Statistics:', f'(last {n_days} days)')
+        s_days = plural(n_days, 'day')
+        print('Statistics:', f'(last {s_days})')
         print(' ', plural(n_posts, 'post'))
         if n_users > 0:
             print(' ', plural(n_users, 'user'))
