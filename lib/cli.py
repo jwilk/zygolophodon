@@ -24,48 +24,16 @@ import socket
 import ssl
 import subprocess
 import sys
-import textwrap
 import types
-import unicodedata
 import urllib.parse
 import urllib.request
 
-__version__ = '0.1'
+import lib.text
 
-text_width = int(os.getenv('ZYGOLOPHODON_COLUMNS', '78'))
+__version__ = '0.1'
 
 if sys.version_info < (3, 9):
     functools.cache = functools.lru_cache(maxsize=None)
-
-def wcwidth(ch):
-    # poor man's wcwidth(3)
-    wd = unicodedata.east_asian_width(ch)
-    return 1 + (wd in {'F', 'W'})
-
-def wcswidth(s):
-    # poor man's wcswidth(3)
-    return sum(map(wcwidth, s))
-
-class Symbol():
-
-    @classmethod
-    def get_var(cls, name):
-        name = name.upper().replace(' ', '_')
-        return f'ZYGOLOPHODON_{name}'
-
-    def __init__(self, name):
-        var = self.get_var(name)
-        text = os.getenv(var, '*')
-        if match := re.fullmatch('(.*):([0-9]+)', text):
-            (text, width) = match.groups()
-            width = int(width)
-        else:
-            width = wcswidth(text)
-        self._text = text
-        self.width = width
-
-    def __str__(self):
-        return self._text
 
 prog = argparse.ArgumentParser().prog
 
@@ -278,45 +246,13 @@ class Response():
 class Dict(dict):
     __getattr__ = dict.__getitem__
 
-def isolate_bidi(text):
-    '''
-    * If there are any explicit BDI formatting characters in the text
-      (except PDF, which is harmless by itself),
-      wrap the text with FSI + PDI.
-    * Remove any excess PDIs.
-    * Append PDIs to close any stray isolate initiators.
-    '''
-    #
-    # Documentation: https://unicode.org/reports/tr9/
-    #   ("Unicode Bidirectional Algorithm")
-    #
-    n = None  # the number of unclosed isolate initiators,
-    # or None if the text doesn't need any BiDi treatment
-    def repl(match):
-        nonlocal n
-        if n is None:
-            n = 0
-        s = match.group()
-        if s in '\N{LRI}\N{RLI}\N{FSI}':
-            n += 1
-        elif s == '\N{PDI}':
-            if n == 0:
-                return ''
-            n -= 1
-        return s
-    s = re.sub('[\N{LRE}\N{RLE}\N{LRO}\N{RLO}\N{LRI}\N{RLI}\N{FSI}\N{PDI}]', repl, text)
-    if n is not None:
-        pdi = (n + 1) * '\N{PDI}'
-        s = f'\N{FSI}{s}{pdi}'
-    return s
-
 def fmt_url(url):
     if sys.stdout.isatty():
         return re.sub('(.)', r'_\b\1', url)
     return url
 
 def fmt_user(account):
-    name = isolate_bidi(account.display_name)
+    name = lib.text.isolate_bidi(account.display_name)
     return f'{name} <{fmt_url(account.url)}>'.lstrip()
 
 def fmt_date(d):
@@ -417,15 +353,13 @@ class HTMLParser(html.parser.HTMLParser):
             # hopefully not reachable
             raise RuntimeError(message)
 
-link_symbol = Symbol('link symbol')
-
 def fmt_html(data):
     parser = HTMLParser()
     parser.feed(data)
     parser.close()
     lines = []
     for para in parser.z_state.paras:
-        lines += wrap_text(para, protect='\N{STX}\N{ETX}')
+        lines += lib.text.wrap_text(para, protect='\N{STX}\N{ETX}')
         lines += ['']
     text = str.join('\n', lines)
     def repl(match):
@@ -433,6 +367,7 @@ def fmt_html(data):
         return fmt_url(url)
     text = re.sub('\N{STX}(.*?)\N{ETX}', repl, text, flags=re.DOTALL)
     lines = [text]
+    link_symbol = lib.text.symbols.link
     if parser.z_state.footnotes:
         for footnote, url in parser.z_state.footnotes.items():
             url = fmt_url(url)
@@ -1166,7 +1101,7 @@ def process_post(instance, post_id, *, with_replies=True, with_ancestors=False):
 
 def print_separator(ch):
     print()
-    print(ch * text_width)
+    print(ch * lib.text.columns)
     print()
 
 def print_posts(posts, *, hide_in_reply_to=False, separators='-- '):
@@ -1189,8 +1124,6 @@ def normalize_lang(lang):
     if lang.startswith('en-'):
         return 'en'
     return lang
-
-paperclip = Symbol('paperclip')
 
 def print_post(post, *, hide_in_reply_to=False):
     print('Location:', fmt_url(post.location))
@@ -1230,60 +1163,17 @@ def print_post(post, *, hide_in_reply_to=False):
         text = fmt_html(post.content)
         print(text)
     print()
+    paperclip = lib.text.symbols.paperclip
     for att in post.media_attachments or ():
         # TODO? Render the images with chafa?
         print(paperclip, fmt_url(att.url))
         print()
         text = att.description or ''
         indent = ' ' * (1 + paperclip.width)
-        text = wrap_text(text, indent=indent)
+        text = lib.text.wrap_text(text, indent=indent)
         for line in text:
             print(line)
         print()
-
-def wrap_text(text, indent='', protect=None):
-    # FIXME? BiDi-aware terminals consider newlines as paragraph separators,
-    # so line-wrapping may disrupt BiDi.
-    text = text.splitlines()
-    for line in text:
-        yield wrap_line(line, indent=indent, protect=protect)
-
-def wrap_line(line, indent='', protect=None):
-    tokens = []
-    if protect:
-        [prot_start, prot_end] = protect
-        assert prot_start and prot_end
-        assert '\N{SUB}' not in (prot_start + prot_end)
-        prot_re = re.compile(
-            '\N{SUB}+|'
-            + re.escape(prot_start)
-            + '(.*?)'
-            + re.escape(prot_end)
-        )
-        def subst(match):
-            nonlocal tokens
-            token = match.group()
-            tokens += [token]
-            n = len(token)
-            if match.group(1) is not None:
-                n -= 2
-            return '\N{SUB}' * n
-        line = re.sub(prot_re, subst, line)
-    lines = textwrap.wrap(line,
-        width=text_width,
-        initial_indent=indent,
-        subsequent_indent=indent,
-        break_long_words=False,
-    )
-    lines = str.join('\n', lines)
-    if tokens:
-        tokens.reverse()
-        def unsubst(match):
-            del match
-            return tokens.pop()
-        lines = re.sub('\N{SUB}+', unsubst, lines)
-    assert not tokens
-    return lines
 
 def main():
     try:
