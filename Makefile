@@ -52,6 +52,8 @@ test-installed: $(or $(shell command -v zygolophodon;),$(bindir)/zygolophodon)
 .PHONY: clean
 clean:
 	rm -f *.tmp doc/*.1 doc/*.tmp
+	find . -type f -name '*.py[co]' -delete
+	find . -type d -name '__pycache__' -delete
 
 .error = GNU make is required
 
