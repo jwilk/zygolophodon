@@ -6,11 +6,8 @@
 
 import ast
 import functools
-import os
 import pathlib
 import re
-import shutil
-import subprocess
 import sys
 import types
 
@@ -26,10 +23,7 @@ def compose(f):
 
 @compose(set)
 def extract_src_vars():
-    if '--installed' in sys.argv:
-        path = shutil.which('zygolophodon')
-    else:
-        path = basedir / 'zygolophodon'
+    path = basedir / 'zygolophodon'
     with open(path, encoding='UTF-8') as file:
         src = file.read()
     code = compile(src, path, 'exec')
@@ -53,11 +47,7 @@ def extract_src_vars():
             continue
 
 def _extract_man_vars_section():
-    if '--installed' in sys.argv:
-        proc = subprocess.run(['man', '-w', 'zygolophodon'], stdout=subprocess.PIPE, check=True)
-        path = os.fsdecode(proc.stdout.rstrip(b'\n'))
-    else:
-        path = basedir / 'doc/zygolophodon.1.in'
+    path = basedir / 'doc/zygolophodon.1.in'
     with open(path, encoding='UTF-8') as file:
         src = file.read()
     match = re.search(r'\n[.]SH ENVIRONMENT\n(.+?\n)[.]SH ', src, re.DOTALL)
@@ -85,6 +75,9 @@ def ok(cond, name, todo=False):
     print(status, '-', name, *todo)
 
 def main():
+    if '--installed' in sys.argv:
+        print('1..0 # SKIP post-install testing not supported')
+        return
     src_vars = extract_src_vars()
     man_vars = extract_man_vars()
     man_todo_vars = extract_man_todo_vars()
