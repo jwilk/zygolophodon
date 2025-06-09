@@ -46,7 +46,7 @@ charmap = {
 
 def main():
     chunks = types.SimpleNamespace()
-    code = (base / 'zygolophodon').read_text(encoding='UTF-8')
+    code = (base / 'lib/cli.py').read_text(encoding='UTF-8')
     chunks.version = rextract(r"\b__version__ = '(.+)'", code)
     readme = (base / 'README').read_text(encoding='UTF-8')
     addrs = rextract(r'^ +ADDRESS(( +(\S.*\n))+)', readme, flags=re.M)

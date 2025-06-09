@@ -12,6 +12,7 @@ import sys
 import types
 
 basedir = pathlib.Path(__file__).parent.parent
+sys.path[:0] = [str(basedir)]
 
 def compose(f):
     def eff(g):
@@ -21,9 +22,7 @@ def compose(f):
         return f_g
     return eff
 
-@compose(set)
-def extract_src_vars():
-    path = basedir / 'zygolophodon'
+def _extract_src_vars(path):
     with open(path, encoding='UTF-8') as file:
         src = file.read()
     code = compile(src, path, 'exec')
@@ -45,6 +44,12 @@ def extract_src_vars():
         if isinstance(func, ast.Attribute) and func.attr == 'getenv':
             yield arg
             continue
+
+@compose(set)
+def extract_src_vars():
+    libdir = basedir / 'lib'
+    for path in libdir.glob('*.py'):
+        yield from _extract_src_vars(path)
 
 def _extract_man_vars_section():
     path = basedir / 'doc/zygolophodon.1.in'

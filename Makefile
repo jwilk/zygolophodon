@@ -7,6 +7,7 @@ PREFIX = /usr/local
 DESTDIR =
 
 bindir = $(PREFIX)/bin
+basedir = $(PREFIX)/share/zygolophodon
 mandir = $(PREFIX)/share/man
 
 .PHONY: all
@@ -27,6 +28,12 @@ install: zygolophodon all
 		$(<) > $(<).tmp
 	install $(<).tmp $(DESTDIR)$(bindir)/$(<)
 	rm $(<).tmp
+	# library:
+	install -d $(DESTDIR)$(basedir)/lib
+	install -p -m644 lib/*.py $(DESTDIR)$(basedir)/lib/
+ifeq "$(DESTDIR)" ""
+	umask 022 && $(PYTHON) -m compileall -q $(basedir)/lib/
+endif
 	# manual page:
 	install -d $(DESTDIR)$(mandir)/man1
 	install -p -m644 doc/$(<).1 $(DESTDIR)$(mandir)/man1/

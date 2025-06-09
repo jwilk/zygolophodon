@@ -64,7 +64,7 @@ jobs:
     - name: run pylint
       run: |
         python3 -m pip install pylint
-        python3 -m pylint $(grep -rl '/env python3$' .)
+        python3 -m pylint $(grep -rl '/env python3$' .) lib/*.py
     - name: check README syntax
       run: |
         python3 -m pip install restructuredtext-lint pygments
