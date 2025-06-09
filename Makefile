@@ -19,6 +19,7 @@ all: doc/zygolophodon.1
 
 .PHONY: install
 install: zygolophodon all
+	$(PYTHON) - < lib/__init__.py  # Python version check
 	# executable:
 	install -d $(DESTDIR)$(bindir)
 	python_exe=$$($(PYTHON) -c 'import sys; print(sys.executable)') && \
