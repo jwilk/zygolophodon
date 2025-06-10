@@ -4,6 +4,8 @@
 # Copyright © 2025 Jakub Wilk <jwilk@jwilk.net>
 # SPDX-License-Identifier: MIT
 
+# pylint: disable=missing-module-docstring
+
 import ast
 import functools
 import pathlib
