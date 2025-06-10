@@ -4,6 +4,10 @@
 # Copyright © 2025 Jakub Wilk <jwilk@jwilk.net>
 # SPDX-License-Identifier: MIT
 
+'''
+anonymous CLI for reading microblogging (chiefly Mastodon) posts
+'''
+
 import sys
 
 type(lambda x, /: x)  # Python >= 3.8 is required
