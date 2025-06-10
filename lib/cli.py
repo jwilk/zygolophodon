@@ -21,14 +21,12 @@ import sys
 import types
 import urllib.parse
 
+import lib.compat
 import lib.html
 import lib.text
 import lib.www
 
 __version__ = '0.1'
-
-if sys.version_info < (3, 9):
-    functools.cache = functools.lru_cache(maxsize=None)
 
 prog = argparse.ArgumentParser().prog
 
