@@ -66,8 +66,6 @@ class VersionAction(argparse.Action):
         print('+ Python {0}.{1}.{2}'.format(*sys.version_info))  # pylint: disable=consider-using-f-string
         parser.exit()
 
-parse_addr = lib.inst.parse_addr
-
 def pint(s):
     n = int(s)
     if n > 0:
@@ -90,10 +88,10 @@ def xmain():
     )
     ap.add_argument('--debug-http', action='store_true', help=argparse.SUPPRESS)
     addr_help = []
-    for instance_type in Instance.types:
+    for instance_type in lib.inst.Instance.types:
         for template in instance_type.addr_parser.templates:
             line = template
-            if instance_type is not Mastodon:
+            if instance_type is not lib.mastodon.Mastodon:
                 line += f' ({instance_type.__name__})'
             addr_help += [line]
     addr_help = str.join('\n', addr_help)
@@ -105,7 +103,7 @@ def xmain():
     if '/' in addr:
         # strip URL fragment
         addr, _ = urllib.parse.urldefrag(addr)
-    if not (match := parse_addr(addr)):
+    if not (match := lib.inst.parse_addr(addr)):
         ap.error('unsupported address')
     sys.stdout.flush()
     with lib.stdout.install():
@@ -126,10 +124,6 @@ def xmain():
                 with_replies=with_context,
                 with_ancestors=(with_context and opts.with_ancestors),
             )
-
-Instance = lib.inst.Instance
-
-Mastodon = lib.mastodon.Mastodon
 
 def plural(i, noun):
     if i != 1:
