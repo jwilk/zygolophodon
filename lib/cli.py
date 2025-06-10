@@ -20,6 +20,7 @@ import lib.compat
 import lib.html
 import lib.stdout
 import lib.text
+import lib.utils
 import lib.www
 
 __version__ = '0.1'
@@ -216,21 +217,9 @@ def xmain():
 
 urlquote = functools.partial(urllib.parse.quote, safe='')
 
-class InternalError(RuntimeError):
-    pass
+expand_template = lib.utils.expand_template
 
-def expand_template(template, **subst):
-    def repl(match):
-        key = match.group()
-        lkey = key.lower()
-        try:
-            return subst[lkey]
-        except KeyError:
-            raise InternalError(f'cannot expand {key} in template {template!r}') from None
-    return re.sub('[A-Z]+', repl, template)
-
-def abstractattribute():
-    return abc.abstractmethod(lambda: None)
+abstractattribute = lib.utils.abstractattribute
 
 class Instance(abc.ABC):
 
