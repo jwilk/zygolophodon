@@ -11,9 +11,8 @@ import re
 import types
 import urllib.parse
 
-import lib.www
-
 from lib.utils import (
+    Dict,
     abstractattribute,
     expand_template,
 )
@@ -80,7 +79,7 @@ class Instance(abc.ABC):
         return f'{self.url}{path}'
 
     def fetch_tag_info(self, tag_name):
-        return lib.www.Dict(
+        return Dict(
             url=self.get_tag_url(tag_name),
             history=None,
         )

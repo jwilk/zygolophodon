@@ -19,6 +19,7 @@ from lib.inst import (
 )
 
 from lib.utils import (
+    Dict,
     abstractattribute,
     expand_template,
 )
@@ -147,7 +148,7 @@ class Mastodonoid(Instance):
         # available since Mastodon v0.1
         if not (ancestors or descendants):
             # shortcut:
-            return lib.www.Dict(ancestors=None, descendants=None)
+            return Dict(ancestors=None, descendants=None)
         context = self._fetch(f'statuses/{post_id}/context')
         if ancestors:
             self.fix_posts(context.ancestors)

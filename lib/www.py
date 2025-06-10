@@ -15,6 +15,10 @@ import ssl
 import sys
 import urllib.request
 
+from lib.utils import (
+    Dict,
+)
+
 def _fmt_url_error(exc):
     if isinstance(exc, urllib.error.HTTPError):
         return str(exc)
@@ -131,8 +135,5 @@ class Response():
             data[key] = value
             i = match.end()
         return data
-
-class Dict(dict):
-    __getattr__ = dict.__getitem__
 
 # vim:ts=4 sts=4 sw=4 et

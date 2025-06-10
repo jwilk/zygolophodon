@@ -8,6 +8,9 @@ misc stuff
 import abc
 import re
 
+class Dict(dict):
+    __getattr__ = dict.__getitem__
+
 class InternalError(RuntimeError):
     pass
 
