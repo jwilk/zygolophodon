@@ -18,11 +18,12 @@ import urllib.parse
 import lib.compat
 import lib.html
 import lib.inst
-import lib.mastodon
 import lib.stdout
 import lib.text
 import lib.utils
 import lib.www
+
+import lib.mastodon
 
 __version__ = '0.1'
 
