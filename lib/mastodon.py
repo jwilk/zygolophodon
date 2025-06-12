@@ -94,7 +94,7 @@ class Mastodonoid(Instance):
 
     def _fetch_posts(self, url, *, limit, **params):
         url = self._api_url(url)
-        page_limit = 40
+        page_limit = 40  # maximum allowed
         pinned = params.get('pinned', False)
         params['limit'] = min(limit, page_limit)
         q_params = urllib.parse.urlencode(params).lower()
