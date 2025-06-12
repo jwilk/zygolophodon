@@ -89,7 +89,7 @@ class Instance(abc.ABC):
         cls.types += [instance_type]
         return instance_type
 
-class AddrParser():
+class AddrParser:
 
     _groups = set()
 

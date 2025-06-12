@@ -21,7 +21,7 @@ def wcswidth(s):
     # poor man's wcswidth(3)
     return sum(map(wcwidth, s))
 
-class Symbol():
+class Symbol:
 
     @classmethod
     def get_var(cls, name):

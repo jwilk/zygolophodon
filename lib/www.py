@@ -57,7 +57,7 @@ class URLError(RuntimeError):
             reason = _fmt_url_error(reason)
         return reason
 
-class UserAgent():
+class UserAgent:
 
     headers = {
         'User-Agent': 'zygolophodon (https://github.com/jwilk/zygolophodon)',
@@ -89,7 +89,7 @@ class UserAgent():
             raise URLError(url, exc) from exc
         return Response(response, url=url)
 
-class Response():
+class Response:
 
     def __init__(self, response, *, url):
         with response:
