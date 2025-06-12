@@ -49,6 +49,12 @@ def text2html(s):
     s = s.replace('\n', '<br>')
     return s
 
+def decamel(s):
+    def subst(match):
+        return '_' + match.group().lower()
+    s = re.sub('[A-Z]', subst, s)
+    return s
+
 class UserAgent(lib.www.UserAgent):
 
     @classmethod
@@ -217,9 +223,7 @@ class Bluesky(Instance):
             yield bad_att
             return
         [tp] = match.groups()
-        def decamel(match):
-            return '_' + match.group().lower()
-        tp = re.sub('[A-Z]', decamel, tp)
+        tp = decamel(tp)
         try:
             fn = getattr(self, f'_mastodonize_embed_{tp}')
         except AttributeError:
