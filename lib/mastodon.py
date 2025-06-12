@@ -276,6 +276,7 @@ class Mastodon(Mastodonoid):
 
     @classmethod
     def identify(cls, data):
+        del data
         return 0
 
     def get_fixed_post_url(self, url):
