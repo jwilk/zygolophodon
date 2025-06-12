@@ -46,6 +46,7 @@ class Mastodonoid(Instance):
     def connect(cls, url):
         # https://docs.joinmastodon.org/methods/instance/#v1
         # available since Mastodon v1.1
+        #
         # FIXME? v1 is deprecated, but OTOH Mastodon before v4.0
         # and some non-Mastodon instances don't support v2.
         #
