@@ -8,8 +8,8 @@ Mastodon (and Mastodon-like) instances
 import abc
 import functools
 import re
-import urllib.parse
 import urllib.error
+import urllib.parse
 
 import lib.www
 
