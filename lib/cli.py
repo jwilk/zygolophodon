@@ -64,6 +64,7 @@ class VersionAction(argparse.Action):
         )
 
     def __call__(self, parser, namespace, values, option_string=None):
+        del namespace, values, option_string
         print(f'{parser.prog} {__version__}')
         print('+ Python {0}.{1}.{2}'.format(*sys.version_info))  # pylint: disable=consider-using-f-string
         parser.exit()
