@@ -8,7 +8,6 @@ Bluesky
 import functools
 import html
 import re
-import urllib.error
 import urllib.parse
 
 import lib.www
@@ -49,6 +48,18 @@ def text2html(s):
     s = html.escape(s)
     s = s.replace('\n', '<br>')
     return s
+
+class UserAgent(lib.www.UserAgent):
+
+    @classmethod
+    def handle_json_error(cls, exc, data):
+        try:
+            code = data.error
+            msg = data.message
+        except KeyError:
+            return
+        assert exc.msg
+        exc.msg = f'[{code}] {msg}'
 
 @Instance.register
 class Bluesky(Instance):
@@ -113,21 +124,7 @@ class Bluesky(Instance):
         return f'https://{domain}/xrpc/{url}'
 
     def _wget(self, url):
-        # FIXME! pylint: disable=duplicate-code
-        try:
-            return lib.www.UserAgent.get(url)
-        except lib.www.URLError as exc:
-            if exc.json is None:
-                raise
-            if isinstance(exc.reason, urllib.error.HTTPError):
-                try:
-                    code = exc.json.error
-                    msg = exc.json.message
-                except KeyError:
-                    pass
-                else:
-                    exc.reason.msg = f'[{code}] {msg}'
-            raise
+        return UserAgent.get(url)
 
     def _fetch(self, url, *, public=True):
         url = self._api_url(url, public=public)

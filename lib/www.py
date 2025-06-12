@@ -42,13 +42,6 @@ class URLError(RuntimeError):
 
     def __init__(self, url, reason):
         self.url = url
-        self.json = None
-        if isinstance(reason, urllib.error.HTTPError) and Response.is_json(reason):
-            response = Response(reason, url=url)
-            try:
-                self.json = json.loads(response.data, object_hook=Dict)
-            except (json.JSONDecodeError, UnicodeError):
-                pass
         self.reason = reason
 
     def __str__(self):
@@ -85,9 +78,23 @@ class UserAgent:
         opener = cls._build_opener()
         try:
             response = opener.open(request)
+        except urllib.error.HTTPError as exc:
+            if Response.is_json(exc):
+                response = Response(exc, url=url)
+                try:
+                    data = json.loads(response.data, object_hook=Dict)
+                except (json.JSONDecodeError, UnicodeError):
+                    pass
+                else:
+                    cls.handle_json_error(exc, data)
+            raise URLError(url, exc) from exc
         except urllib.error.URLError as exc:
             raise URLError(url, exc) from exc
         return Response(response, url=url)
+
+    @classmethod
+    def handle_json_error(cls, exc, data):
+        del exc, data
 
 class Response:
 

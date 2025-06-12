@@ -8,7 +8,6 @@ Mastodon (and Mastodon-like) instances
 import abc
 import functools
 import re
-import urllib.error
 import urllib.parse
 
 import lib.www
@@ -25,6 +24,17 @@ from lib.utils import (
 )
 
 urlquote = functools.partial(urllib.parse.quote, safe='')
+
+class UserAgent(lib.www.UserAgent):
+
+    @classmethod
+    def handle_json_error(cls, exc, data):
+        try:
+            msg = data.error
+        except KeyError:
+            return
+        assert exc.msg
+        exc.msg = msg
 
 class Mastodonoid(Instance):
 
@@ -70,19 +80,7 @@ class Mastodonoid(Instance):
         return f'{self.url}/api/v1/{url}'
 
     def _wget(self, url):
-        try:
-            return lib.www.UserAgent.get(url)
-        except lib.www.URLError as exc:
-            if exc.json is None:
-                raise
-            if isinstance(exc.reason, urllib.error.HTTPError):
-                try:
-                    msg = exc.json.error
-                except KeyError:
-                    pass
-                else:
-                    exc.reason.msg = msg
-            raise
+        return UserAgent.get(url)
 
     def _fetch(self, url):
         url = self._api_url(url)
