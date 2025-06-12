@@ -67,7 +67,7 @@ class Instance(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def fetch_post_context(self, post_id, ancestors=True, descendants=True):
+    def fetch_post_context(self, post_id, *, ancestors=True, descendants=True):
         pass
 
     def get_tag_url(self, tag_name):

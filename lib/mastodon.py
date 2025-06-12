@@ -144,7 +144,7 @@ class Mastodonoid(Instance):
         self.fix_post(post)
         return post
 
-    def fetch_post_context(self, post_id, ancestors=True, descendants=True):
+    def fetch_post_context(self, post_id, *, ancestors=True, descendants=True):
         # https://docs.joinmastodon.org/methods/statuses/#context
         # available since Mastodon v0.1
         if not (ancestors or descendants):

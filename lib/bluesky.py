@@ -367,7 +367,7 @@ class Bluesky(Instance):
         thread = self._fetch(url).thread
         return self._mastodonize_post(thread.post)
 
-    def fetch_post_context(self, post_id, ancestors=True, descendants=True):
+    def fetch_post_context(self, post_id, *, ancestors=True, descendants=True):
         # FIXME? This duplicates some of the work of fetch_post().
         context = Dict(ancestors=[], descendants=[])
         if not (ancestors or descendants):
