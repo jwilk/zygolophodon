@@ -7,7 +7,6 @@
 # pylint: disable=missing-module-docstring
 
 import ast
-import functools
 import pathlib
 import re
 import sys
@@ -16,13 +15,8 @@ import types
 basedir = pathlib.Path(__file__).parent.parent
 sys.path[:0] = [str(basedir)]
 
-def compose(f):
-    def eff(g):
-        @functools.wraps(g)
-        def f_g(*args, **kwargs):
-            return f(g(*args, **kwargs))
-        return f_g
-    return eff
+# pylint: disable-next=wrong-import-position
+from lib.utils import compose
 
 def _extract_src_vars(path):
     with open(path, encoding='UTF-8') as file:
