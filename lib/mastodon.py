@@ -424,11 +424,11 @@ class Pleroma(Mastodonoid):
             post.pinned = pinned_at
 
 __all__ = [
-    'Mastodonoid',
-    'Mastodon',
-    'UntamedMastodonoid',
     'Iceshrimp',
+    'Mastodon',
+    'Mastodonoid',
     'Pleroma',
+    'UntamedMastodonoid',
 ]
 
 # vim:ts=4 sts=4 sw=4 et
