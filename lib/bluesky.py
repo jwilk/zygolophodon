@@ -404,4 +404,8 @@ class Bluesky(Instance):
                 add_descendants(reply)
         return context
 
+__all__ = [
+    'Bluesky',
+]
+
 # vim:ts=4 sts=4 sw=4 et
