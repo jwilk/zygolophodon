@@ -19,17 +19,10 @@ from lib.inst import (
 
 from lib.utils import (
     Dict,
+    compose,
 )
 
 urlquote = functools.partial(urllib.parse.quote, safe='')
-
-def compose(f):
-    def eff(g):
-        @functools.wraps(g)
-        def f_g(*args, **kwargs):
-            return f(g(*args, **kwargs))
-        return f_g
-    return eff
 
 def qre(pattern, flags=0):
     r'''

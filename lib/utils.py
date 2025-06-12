@@ -6,6 +6,7 @@ misc stuff
 '''
 
 import abc
+import functools
 import re
 
 class Dict(dict):
@@ -27,5 +28,13 @@ def expand_template(template, **subst):
 
 def abstractattribute():
     return abc.abstractmethod(lambda: None)
+
+def compose(f):
+    def eff(g):
+        @functools.wraps(g)
+        def f_g(*args, **kwargs):
+            return f(g(*args, **kwargs))
+        return f_g
+    return eff
 
 # vim:ts=4 sts=4 sw=4 et
