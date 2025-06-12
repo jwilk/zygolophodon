@@ -107,7 +107,8 @@ class Response:
         elif content_encoding == 'identity':
             pass
         else:
-            raise URLError(url, f'unexpected Content-Encoding: {content_encoding!r}')
+            msg = f'unexpected Content-Encoding: {content_encoding!r}'
+            raise URLError(url, msg)
         self.data = data
         self.headers = response.headers
         self.url = url
@@ -120,7 +121,8 @@ class Response:
     @property
     def json(self):
         if not self.is_json():
-            raise URLError(self.url, 'error: non-JSON content')
+            msg = 'error: non-JSON content'
+            raise URLError(self.url, msg)
         try:
             data = json.loads(self.data, object_hook=Dict)
         except (json.JSONDecodeError, UnicodeError) as exc:
