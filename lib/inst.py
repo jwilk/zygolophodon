@@ -160,7 +160,7 @@ class AddrParser():
                 break
         else:
             return None
-        data = {group: None for group in self._groups}
+        data = dict.fromkeys(self._groups)
         data.update(
             (group, value)
             for group, value in match.groupdict().items()
