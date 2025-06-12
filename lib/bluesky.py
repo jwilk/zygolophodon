@@ -265,9 +265,10 @@ class Bluesky(Instance):
 
     def _mastodonize_embed_external(self, embed):
         # FIXME?
+        ext = embed.external
         class att:
-            url = embed.external.uri
-            description = embed.external.title + '\n\n' + embed.external.description
+            url = ext.uri
+            description = f'{ext.title}\n\n{ext.description}'
         yield att
 
     def _mastodonize_post(self, post, *, pinned=False):
