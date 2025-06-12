@@ -120,7 +120,7 @@ class AddrParser():
             user=r'[^/?#\0-\40]+',
             # FIXME? This is much more lax that USERNAME_RE in <app/models/account.rb>
             tag=r'[^/?#\0-\40]+',
-            ident=self._post_id_regexp
+            ident=self._post_id_regexp,
         )
         discard = self._discard_prefixes
         def repl_punct(match):
