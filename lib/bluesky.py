@@ -9,6 +9,7 @@ import functools
 import html
 import re
 import urllib.error
+import urllib.parse
 
 import lib.www
 
