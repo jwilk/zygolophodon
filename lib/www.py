@@ -6,9 +6,9 @@ HTTP client
 '''
 
 import errno
-import json
 import gzip
 import http.client
+import json
 import re
 import socket
 import ssl
