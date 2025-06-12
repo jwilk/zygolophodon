@@ -89,7 +89,8 @@ def wrap_line(line, indent='', protect=None):
     tokens = []
     if protect:
         [prot_start, prot_end] = protect
-        assert prot_start and prot_end
+        assert prot_start
+        assert prot_end
         assert '\N{SUB}' not in (prot_start + prot_end)
         prot_re = re.compile(
             '\N{SUB}+|'
