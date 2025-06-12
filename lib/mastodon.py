@@ -79,12 +79,9 @@ class Mastodonoid(Instance):
     def _api_url(self, url):
         return f'{self.url}/api/v1/{url}'
 
-    def _wget(self, url):
-        return UserAgent.get(url)
-
     def _fetch(self, url):
         url = self._api_url(url)
-        return self._wget(url).json
+        return UserAgent.get(url).json
 
     def fetch_user_by_name(self, name):
         # https://docs.joinmastodon.org/methods/accounts/#lookup
@@ -103,7 +100,7 @@ class Mastodonoid(Instance):
         q_params = urllib.parse.urlencode(params).lower()
         url += f'?{q_params}'
         while limit > 0:
-            response = self._wget(url)
+            response = UserAgent.get(url)
             posts = response.json
             self.fix_posts(posts)
             for post in posts:

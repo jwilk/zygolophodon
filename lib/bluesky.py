@@ -123,12 +123,9 @@ class Bluesky(Instance):
             domain = f'public.{domain}'
         return f'https://{domain}/xrpc/{url}'
 
-    def _wget(self, url):
-        return UserAgent.get(url)
-
     def _fetch(self, url, *, public=True):
         url = self._api_url(url, public=public)
-        return self._wget(url).json
+        return UserAgent.get(url).json
 
     @compose(''.join)
     def _mastodonize_text(self, text, *, facets=()):
