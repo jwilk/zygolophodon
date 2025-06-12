@@ -21,7 +21,8 @@ def expand_template(template, **subst):
         try:
             return subst[lkey]
         except KeyError:
-            raise InternalError(f'cannot expand {key} in template {template!r}') from None
+            msg = f'cannot expand {key} in template {template!r}'
+            raise InternalError(msg) from None
     return re.sub('[A-Z]+', repl, template)
 
 def abstractattribute():

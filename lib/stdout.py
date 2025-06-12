@@ -84,7 +84,8 @@ class StdOut(io.TextIOBase):
         if self._pager:
             self._pager.__exit__(exc_type, exc_value, traceback)
             if exc_type is None and self._pager.returncode != 0:
-                raise RuntimeError('pager failed')
+                msg = 'pager failed'
+                raise RuntimeError(msg)
             self._pager = None
             self._stdout = None
         return ret

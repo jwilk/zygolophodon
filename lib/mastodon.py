@@ -116,7 +116,8 @@ class Mastodonoid(Instance):
             if next_url is None:
                 break
             if not url.startswith(self._api_url('')):
-                raise RuntimeError(f'suspicious Link URL: {next_url!r}')
+                msg = f'suspicious Link URL: {next_url!r}'
+                raise RuntimeError(msg)
             url = re.sub(
                 r'(?<=[?&]limit=)\d+(?=&|\Z)',
                 str(min(limit, page_limit)),
