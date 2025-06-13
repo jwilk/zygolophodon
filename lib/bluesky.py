@@ -304,8 +304,22 @@ class Bluesky(Instance):
             content = self._mastodonize_text(record.text, facets=facets)
             media_attachments = list(self._mastodonize_embed(embed))
             pinned = _pinned
-        # TODO: handle app.bsky.feed.defs#reasonRepost
-        return mpost
+        if reason and reason['$type'] == 'app.bsky.feed.defs#reasonRepost':
+            self._remember_user(reason.by)
+            class mrepost:
+                id = url = uri = location = None
+                in_reply_to_id = in_reply_to_url = None
+                account = self._mastodonize_user(reason.by)
+                edited_at = None
+                created_at = reason.indexedAt
+                language = None
+                reblog = mpost
+                content = None
+                media_attachments = None
+                pinned = None
+            return mrepost
+        else:
+            return mpost
 
     def fetch_user_posts(self, user, *, limit, pinned=False, **params):
         # https://docs.bsky.app/docs/api/app-bsky-feed-get-author-feed
