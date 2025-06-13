@@ -229,7 +229,8 @@ def normalize_lang(lang):
     return lang
 
 def print_post(post, *, hide_in_reply_to=False):
-    print('Location:', fmt_url(post.location))
+    if post.location:
+        print('Location:', fmt_url(post.location))
     url = post.url or post.uri
     if url and url != post.location:
         print('Origin:', fmt_url(url))
