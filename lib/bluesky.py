@@ -15,6 +15,10 @@ from lib.inst import (
     Instance,
 )
 
+from lib.models import (
+    Attachment,
+)
+
 from lib.utils import (
     Dict,
     compose,
@@ -207,9 +211,10 @@ class Bluesky(Instance):
             return
         tp = embed['$type']
         match = qre(r'\q<app.bsky.embed.>(\w+)#view').fullmatch(tp)
-        class bad_att:
-            url = 'about:invalid'  # FIXME?
-            description = f'(unknown embed type: {tp})'
+        bad_att = Attachment(
+            url='about:invalid',  # FIXME?
+            description=f'(unknown embed type: {tp})',
+        )
         if not match:
             yield bad_att
             return
@@ -224,16 +229,10 @@ class Bluesky(Instance):
 
     def _mastodonize_embed_images(self, embed):
         for image in embed.images:
-            class att:
-                url = image.fullsize
-                description = image.alt
-            yield att
+            yield Attachment(url=image.fullsize, description=image.alt)
 
     def _mastodonize_embed_video(self, embed):
-        class att:
-            url = embed.playlist
-            description = None
-        yield att
+        yield Attachment(url=embed.playlist)
 
     def _mastodonize_embed_record(self, embed):
         # FIXME?
@@ -248,10 +247,8 @@ class Bluesky(Instance):
             descr = record.value.text
         except KeyError:
             descr = None
-        class att:
-            url = self._get_post_url(record.uri)
-            description = descr
-        yield att
+        url = self._get_post_url(record.uri)
+        yield Attachment(url=url, description=descr)
 
     def _mastodonize_embed_record_with_media(self, embed):
         # FIXME?
@@ -261,10 +258,8 @@ class Bluesky(Instance):
     def _mastodonize_embed_external(self, embed):
         # FIXME?
         ext = embed.external
-        class att:
-            url = ext.uri
-            description = f'{ext.title}\n\n{ext.description}'
-        yield att
+        descr = f'{ext.title}\n\n{ext.description}'
+        yield Attachment(url=ext.uri, description=descr)
 
     def _mastodonize_post(self, post, *, reason=None):
         record = post.record
