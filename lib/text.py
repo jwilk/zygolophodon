@@ -123,4 +123,12 @@ def wrap_line(line, indent='', protect=None):
     assert not tokens
     return lines
 
+__all__ = [
+    'Symbol',
+    'columns',
+    'isolate_bidi',
+    'symbols',
+    'wrap_text',
+]
+
 # vim:ts=4 sts=4 sw=4 et
