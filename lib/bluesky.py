@@ -17,6 +17,7 @@ from lib.inst import (
 
 from lib.models import (
     Attachment,
+    User,
 )
 
 from lib.utils import (
@@ -154,19 +155,19 @@ class Bluesky(Instance):
         yield text2html(tslice(i))
 
     def _mastodonize_user(self, user):
-        class muser:
-            at_did = user.did
-            url = f'https://bsky.app/profile/{user.handle}'
-            try:
-                display_name = user.displayName
-            except KeyError:
-                display_name = ''
-            try:
-                note = user.description
-            except KeyError:
-                note = None
-            else:
-                note = self._mastodonize_text(note)
+        url = f'https://bsky.app/profile/{user.handle}'
+        try:
+            dname = user.displayName
+        except KeyError:
+            dname = ''
+        try:
+            note = user.description
+        except KeyError:
+            note = None
+        else:
+            note = self._mastodonize_text(note)
+        muser = User(url=url, display_name=dname, note=note)
+        muser.at_did = user.did
         return muser
 
     def _mastodonize_text_facet_link(self, text, feature):

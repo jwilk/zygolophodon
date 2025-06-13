@@ -19,8 +19,15 @@ class Attachment:
     url: str
     description: typing.Optional[str] = None
 
+@dataclass
+class User:
+    url: str
+    display_name: str
+    note: typing.Optional[str] = None
+
 __all__ = [
     'Attachment',
+    'User',
 ]
 
 # vim:ts=4 sts=4 sw=4 et
