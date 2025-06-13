@@ -37,4 +37,11 @@ def compose(f):
         return f_g
     return eff
 
+__all__ = [
+    'Dict',
+    'expand_template',
+    'abstractattribute',
+    'compose',
+]
+
 # vim:ts=4 sts=4 sw=4 et
