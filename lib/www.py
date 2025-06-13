@@ -149,4 +149,11 @@ class Response:
 
 urlquote = functools.partial(urllib.parse.quote, safe='')
 
+__all__ = [
+    'URLError',
+    'UserAgent',
+    'Response',
+    'urlquote',
+]
+
 # vim:ts=4 sts=4 sw=4 et
