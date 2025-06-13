@@ -268,7 +268,7 @@ class Bluesky(Instance):
             description = f'{ext.title}\n\n{ext.description}'
         yield att
 
-    def _mastodonize_post(self, post, *, pinned=False):
+    def _mastodonize_post(self, post, *, reason=None):
         record = post.record
         try:
             embed = post.embed
@@ -280,7 +280,9 @@ class Bluesky(Instance):
             _in_reply_to_url = in_reply_to_uri = None
         else:
             _in_reply_to_url = self._get_post_url(in_reply_to_uri)
-        _pinned = pinned
+        _pinned = False
+        if reason and reason['$type'] == 'app.bsky.feed.defs#reasonPin':
+            _pinned = True
         self._remember_user(post.author)
         try:
             facets = record.facets
@@ -298,10 +300,11 @@ class Bluesky(Instance):
                 language = None
             else:
                 language = str.join(', ', language)
-            reblog = None  # FIXME?
+            reblog = None
             content = self._mastodonize_text(record.text, facets=facets)
             media_attachments = list(self._mastodonize_embed(embed))
             pinned = _pinned
+        # TODO: handle app.bsky.feed.defs#reasonRepost
         return mpost
 
     def fetch_user_posts(self, user, *, limit, pinned=False, **params):
@@ -317,12 +320,11 @@ class Bluesky(Instance):
         while limit > 0:
             response = self._fetch(page_url)
             for item in response.feed:
-                # TODO: handle app.bsky.feed.defs#reasonRepost
                 try:
-                    pinned = item.reason['$type'] == 'app.bsky.feed.defs#reasonPin'
+                    reason = item.reason
                 except KeyError:
-                    pinned = False
-                yield self._mastodonize_post(item.post, pinned=pinned)
+                    reason = None
+                yield self._mastodonize_post(item.post, reason=reason)
             try:
                 cursor = response.cursor
             except KeyError:
