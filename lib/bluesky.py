@@ -317,6 +317,7 @@ class Bluesky(Instance):
         while limit > 0:
             response = self._fetch(page_url)
             for item in response.feed:
+                # TODO: handle app.bsky.feed.defs#reasonRepost
                 try:
                     pinned = item.reason['$type'] == 'app.bsky.feed.defs#reasonPin'
                 except KeyError:
