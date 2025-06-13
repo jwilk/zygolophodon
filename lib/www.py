@@ -6,6 +6,7 @@ HTTP client
 '''
 
 import errno
+import functools
 import gzip
 import http.client
 import json
@@ -13,6 +14,7 @@ import re
 import socket
 import ssl
 import sys
+import urllib.parse
 import urllib.request
 
 from lib.utils import (
@@ -144,5 +146,7 @@ class Response:
             data[key] = value
             i = match.end()
         return data
+
+urlquote = functools.partial(urllib.parse.quote, safe='')
 
 # vim:ts=4 sts=4 sw=4 et

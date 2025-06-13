@@ -6,7 +6,6 @@ microblogging instances
 '''
 
 import abc
-import functools
 import re
 import types
 import urllib.parse
@@ -17,7 +16,7 @@ from lib.utils import (
     expand_template,
 )
 
-urlquote = functools.partial(urllib.parse.quote, safe='')
+from lib.www import urlquote
 
 class Instance(abc.ABC):
 

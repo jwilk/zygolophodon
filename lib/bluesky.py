@@ -5,10 +5,8 @@
 Bluesky
 '''
 
-import functools
 import html
 import re
-import urllib.parse
 
 import lib.www
 
@@ -22,7 +20,7 @@ from lib.utils import (
     compose,
 )
 
-urlquote = functools.partial(urllib.parse.quote, safe='')
+urlquote = lib.www.urlquote
 
 def qre(pattern, flags=0):
     r'''

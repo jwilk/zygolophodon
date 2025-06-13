@@ -23,7 +23,7 @@ from lib.utils import (
     expand_template,
 )
 
-urlquote = functools.partial(urllib.parse.quote, safe='')
+urlquote = lib.www.urlquote
 
 class UserAgent(lib.www.UserAgent):
 
