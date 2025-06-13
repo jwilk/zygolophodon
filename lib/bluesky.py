@@ -290,7 +290,10 @@ class Bluesky(Instance):
             id = url = location = self._get_post_url(post.uri)
             in_reply_to_id = in_reply_to_url = _in_reply_to_url
             account = self._mastodonize_user(post.author)
-            edited_at = None  # FIXME?
+            # Editing posts is not supported yet:
+            # https://github.com/bluesky-social/social-app/issues/673
+            # ("Allow editing posts")
+            edited_at = None
             created_at = record.createdAt
             try:
                 language = record.langs
