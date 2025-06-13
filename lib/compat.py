@@ -11,4 +11,6 @@ import sys
 if sys.version_info < (3, 9):
     functools.cache = functools.lru_cache(maxsize=None)
 
+__all__ = []
+
 # vim:ts=4 sts=4 sw=4 et
