@@ -10,8 +10,11 @@ import re
 import types
 import urllib.parse
 
+from lib.models import (
+    TagInfo,
+)
+
 from lib.utils import (
-    Dict,
     abstractattribute,
     expand_template,
 )
@@ -78,10 +81,8 @@ class Instance(abc.ABC):
         return f'{self.url}{path}'
 
     def fetch_tag_info(self, tag_name):
-        return Dict(
-            url=self.get_tag_url(tag_name),
-            history=None,
-        )
+        url = self.get_tag_url(tag_name)
+        return TagInfo(url=url)
 
     @classmethod
     def register(cls, instance_type):

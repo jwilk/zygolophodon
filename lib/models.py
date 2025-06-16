@@ -25,8 +25,14 @@ class User:
     display_name: str
     note: typing.Optional[str] = None
 
+@dataclass
+class TagInfo:
+    url: str
+    history: typing.Optional[list] = None
+
 __all__ = [
     'Attachment',
+    'TagInfo',
     'User',
 ]
 
