@@ -44,7 +44,8 @@ def fmt_user(account):
     return f'{name} <{fmt_url(account.url)}>'.lstrip()
 
 def fmt_date(d):
-    d = lib.compat.datetime_fromisoformat(d)
+    if isinstance(d, str):
+        d = lib.compat.datetime_fromisoformat(d)
     d = d.replace(microsecond=0)
     d = str(d)
     d = re.sub('[+]00:00$', 'Z', d)
