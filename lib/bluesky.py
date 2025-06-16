@@ -268,6 +268,7 @@ class Bluesky(Instance):
 
     def _mastodonize_post(self, post, *, reason=None):
         record = post.record
+        self._remember_user(post.author)
         try:
             embed = post.embed
         except KeyError:
@@ -281,7 +282,6 @@ class Bluesky(Instance):
         _pinned = False
         if reason and reason['$type'] == 'app.bsky.feed.defs#reasonPin':
             _pinned = True
-        self._remember_user(post.author)
         try:
             facets = record.facets
         except KeyError:
