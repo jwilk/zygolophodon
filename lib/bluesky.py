@@ -8,6 +8,7 @@ Bluesky
 import html
 import re
 
+import lib.compat
 import lib.www
 
 from lib.inst import (
@@ -18,6 +19,7 @@ from lib.inst import (
 from lib.models import (
     Attachment,
     User,
+    Post,
 )
 
 from lib.utils import (
@@ -265,10 +267,12 @@ class Bluesky(Instance):
     def _mastodonize_post(self, post, *, reason=None):
         record = post.record
         self._remember_user(post.author)
+        url = self._get_post_url(post.uri)
         try:
             embed = post.embed
         except KeyError:
             embed = None
+        atts = list(self._mastodonize_embed(embed))
         try:
             in_reply_to_uri = record.reply.parent.uri
         except KeyError:
@@ -278,43 +282,45 @@ class Bluesky(Instance):
         _pinned = False
         if reason and reason['$type'] == 'app.bsky.feed.defs#reasonPin':
             _pinned = True
+        account = self._mastodonize_user(post.author)
         try:
             facets = record.facets
         except KeyError:
             facets = ()
-        class mpost:
-            id = url = location = self._get_post_url(post.uri)
-            in_reply_to_id = in_reply_to_url = _in_reply_to_url
-            account = self._mastodonize_user(post.author)
+        text = self._mastodonize_text(record.text, facets=facets)
+        created_at = lib.compat.datetime_fromisoformat(record.createdAt)
+        try:
+            language = record.langs
+        except KeyError:
+            language = None
+        else:
+            language = str.join(', ', language)
+        mpost = Post(
+            id=url, url=url, uri=url, location=url,
+            in_reply_to_id=_in_reply_to_url,
+            in_reply_to_url=_in_reply_to_url,
+            account=account,
+            created_at=created_at,
             # Editing posts is not supported yet:
             # https://github.com/bluesky-social/social-app/issues/673
             # ("Allow editing posts")
-            edited_at = None
-            created_at = record.createdAt
-            try:
-                language = record.langs
-            except KeyError:
-                language = None
-            else:
-                language = str.join(', ', language)
-            reblog = None
-            content = self._mastodonize_text(record.text, facets=facets)
-            media_attachments = list(self._mastodonize_embed(embed))
-            pinned = _pinned
+            edited_at=None,
+            language=language,
+            content=text,
+            media_attachments=atts,
+            pinned=_pinned,
+        )
         if reason and reason['$type'] == 'app.bsky.feed.defs#reasonRepost':
             self._remember_user(reason.by)
-            class mrepost:
-                id = url = uri = location = None
-                in_reply_to_id = in_reply_to_url = None
-                account = self._mastodonize_user(reason.by)
-                edited_at = None
-                created_at = reason.indexedAt
-                language = None
-                reblog = mpost
-                content = None
-                media_attachments = None
-                pinned = None
-            return mrepost
+            account = self._mastodonize_user(reason.by)
+            indexed_at = lib.compat.datetime_fromisoformat(reason.indexedAt)
+            return Post(
+                id=None, url=None, uri=None, location=None,
+                account=account,
+                created_at=indexed_at,
+                reblog=mpost,
+                content=None,
+            )
         else:
             return mpost
 
