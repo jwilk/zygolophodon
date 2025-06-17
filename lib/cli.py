@@ -44,8 +44,10 @@ def fmt_user(account):
     return f'{name} <{fmt_url(account.url)}>'.lstrip()
 
 def fmt_date(d):
-    d = re.sub(r'[.]\d+', '', d)
-    d = d.replace('T', ' ')
+    d = lib.compat.datetime_fromisoformat(d)
+    d = d.replace(microsecond=0)
+    d = str(d)
+    d = re.sub('[+]00:00$', 'Z', d)
     return d
 
 fmt_html = functools.partial(lib.html.fmt_html, fmt_url=fmt_url)
