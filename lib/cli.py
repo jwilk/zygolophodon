@@ -81,6 +81,7 @@ pint.__name__ = 'positive int'
 
 def xmain():
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+    ap.color = False
     if sys.version_info < (3, 10):
         # https://bugs.python.org/issue9694
         ap._optionals.title = 'options'  # pylint: disable=protected-access
