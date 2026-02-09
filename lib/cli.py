@@ -93,6 +93,7 @@ def xmain():
     ap.add_argument('--with-ancestors', action='store_true',
         help='show also post ancestors'
     )
+    ap.add_argument('--user-agent', help=argparse.SUPPRESS)
     ap.add_argument('--debug-http', action='store_true', help=argparse.SUPPRESS)
     addr_help = []
     for instance_type in lib.inst.Instance.types:
@@ -106,6 +107,8 @@ def xmain():
     opts = ap.parse_args()
     if opts.debug_http:
         http.client.HTTPConnection.debuglevel = 1
+    if opts.user_agent is not None:
+        lib.www.UserAgent.headers['User-Agent'] = opts.user_agent
     addr = opts.addr
     if '/' in addr:
         # strip URL fragment
