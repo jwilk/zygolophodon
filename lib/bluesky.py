@@ -276,12 +276,12 @@ class Bluesky(Instance):
         try:
             in_reply_to_uri = record.reply.parent.uri
         except KeyError:
-            _in_reply_to_url = in_reply_to_uri = None
+            in_reply_to_url = in_reply_to_uri = None
         else:
-            _in_reply_to_url = self._get_post_url(in_reply_to_uri)
-        _pinned = False
+            in_reply_to_url = self._get_post_url(in_reply_to_uri)
+        pinned = False
         if reason and reason['$type'] == 'app.bsky.feed.defs#reasonPin':
-            _pinned = True
+            pinned = True
         account = self._mastodonize_user(post.author)
         try:
             facets = record.facets
@@ -297,8 +297,8 @@ class Bluesky(Instance):
             language = str.join(', ', language)
         mpost = Post(
             id=url, url=url, uri=url, location=url,
-            in_reply_to_id=_in_reply_to_url,
-            in_reply_to_url=_in_reply_to_url,
+            in_reply_to_id=in_reply_to_url,
+            in_reply_to_url=in_reply_to_url,
             account=account,
             created_at=created_at,
             # Editing posts is not supported yet:
@@ -308,7 +308,7 @@ class Bluesky(Instance):
             language=language,
             content=text,
             media_attachments=atts,
-            pinned=_pinned,
+            pinned=pinned,
         )
         if reason and reason['$type'] == 'app.bsky.feed.defs#reasonRepost':
             self._remember_user(reason.by)
