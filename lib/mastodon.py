@@ -10,6 +10,7 @@ import functools
 import re
 import urllib.parse
 
+import lib.misskey
 import lib.www
 
 from lib.inst import (
@@ -378,6 +379,8 @@ class Sharkey(Mastodonoid):
     # * packages/backend/src/misc/id/*.ts
     # * chart/files/default.yml (section "ID generation")
 
+    user_url_template = '/@USER'
+
     addr_parser = AddrParser(
         '/notes/IDENT',
     )
@@ -387,6 +390,29 @@ class Sharkey(Mastodonoid):
         if re.search(r'\bSharkey\b', data.version):
             return 1
         return -1
+
+    def get_user_url(self, *, username):
+        template = self.user_url_template
+        return self.expand_url_template(template, _safe_='@', user=username)
+
+    def fetch_post(self, post_id):
+        try:
+            return super().fetch_post(post_id)
+        except lib.www.URLError as exc:
+            exc = exc.reason
+            spurious_404 = False
+            if isinstance(exc, urllib.error.HTTPError) and exc.code == 404 and exc.msg == 'NO_SUCH_NOTE':
+                try:
+                    self._fetch(f'statuses/{post_id}/source')
+                except lib.www.URLError:
+                    pass
+                else:
+                    spurious_404 = True
+            if not spurious_404:
+                raise
+        # FIXME in Sharkey?
+        # Mastodon API gave spurious HTTP 404; fall back to Misskey's API
+        return lib.misskey.fetch_post(self, post_id)
 
 @Instance.register
 class Pleroma(Mastodonoid):
