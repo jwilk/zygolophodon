@@ -8,6 +8,7 @@ The following servers are supported:
 
 * Mastodon (≥ 3.4)
 * Iceshrimp, Catodon
+* Sharkey
 * Pleroma (≥ 2.5), Akkoma (≥ 2.5)
 * Bluesky
 
@@ -33,6 +34,7 @@ Usage
                        https://DOMAIN/users/USER
                        https://DOMAIN/users/USER/statuses/NNNNNN
                        https://DOMAIN/notes/IDENT (Iceshrimp)
+                       https://DOMAIN/notes/IDENT (Sharkey)
                        https://DOMAIN/notice/IDENT (Pleroma)
                        https://DOMAIN/tag/TAG (Pleroma)
                        https://bsky.app/profile/USER (Bluesky)

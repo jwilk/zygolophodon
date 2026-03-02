@@ -365,6 +365,30 @@ class Iceshrimp(Mastodonoid):
         return Instance.fetch_tag_info(self, tag_name)
 
 @Instance.register
+class Sharkey(Mastodonoid):
+
+    # Codebase: https://activitypub.software/TransFem-org/Sharkey
+
+    tag_url_template = '/tags/TAG'
+
+    post_url_template = '/notes/IDENT'
+
+    post_id_regexp = '[0-9a-z]{10}|[0-9a-z]{16}|[0-9a-f]{24}|[0-9A-HJKMNP-TV-Z]{26}'
+    # Source:
+    # * packages/backend/src/misc/id/*.ts
+    # * chart/files/default.yml (section "ID generation")
+
+    addr_parser = AddrParser(
+        '/notes/IDENT',
+    )
+
+    @classmethod
+    def identify(cls, data):
+        if re.search(r'\bSharkey\b', data.version):
+            return 1
+        return -1
+
+@Instance.register
 class Pleroma(Mastodonoid):
 
     # Codebase: https://git.pleroma.social/pleroma/pleroma
@@ -424,6 +448,7 @@ __all__ = [
     'Mastodon',
     'Mastodonoid',
     'Pleroma',
+    'Sharkey',
     'UntamedMastodonoid',
 ]
 
