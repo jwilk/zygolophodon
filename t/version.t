@@ -25,7 +25,7 @@ else
     echo not ok 1
     echo not ok 2
 fi
-if [ -d "$dir/.git" ]
+if [ -e "$dir/.git" ]
 then
     echo 'ok 3 # SKIP git checkout'
 elif [ "$changelog_dist" = UNRELEASED ]
