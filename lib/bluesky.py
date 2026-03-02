@@ -9,7 +9,9 @@ import html
 import re
 
 import lib.compat
-import lib.www
+import lib.html
+
+from lib.html import text2html
 
 from lib.inst import (
     AddrParser,
@@ -41,11 +43,6 @@ def qre(pattern, flags=0):
         return re.escape(s)
     pattern = re.sub(r'\\q<(.*?)>|(\.)', repl, pattern)
     return re.compile(pattern, flags=flags)
-
-def text2html(s):
-    s = html.escape(s)
-    s = s.replace('\n', '<br>')
-    return s
 
 def decamel(s):
     def subst(match):

@@ -125,6 +125,14 @@ def fmt_html(data, *, fmt_url=str):
             lines += [f'{link_symbol} {footnote}: {url}']
     return str.join('\n', lines)
 
-__all__ = ['fmt_html']
+def text2html(s):
+    s = html.escape(s)
+    s = s.replace('\n', '<br>')
+    return s
+
+__all__ = [
+    'fmt_html',
+    'text2html',
+]
 
 # vim:ts=4 sts=4 sw=4 et
