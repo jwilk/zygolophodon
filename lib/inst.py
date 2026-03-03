@@ -72,9 +72,9 @@ class Instance(abc.ABC):
     def fetch_post_context(self, post_id, *, ancestors=True, descendants=True):
         pass
 
-    def expand_url_template(self, template, **subst):
+    def expand_url_template(self, template, _safe_='', **subst):
         subst = {
-            key: urlquote(value)
+            key: urlquote(value, safe=_safe_)  # pylint: disable=redundant-keyword-arg
             for key, value in subst.items()
         }
         path = expand_template(template, **subst)
