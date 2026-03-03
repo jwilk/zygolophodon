@@ -20,7 +20,6 @@ from lib.inst import (
 from lib.utils import (
     Dict,
     abstractattribute,
-    expand_template,
 )
 
 urlquote = lib.www.urlquote
@@ -161,8 +160,7 @@ class Mastodonoid(Instance):
         template = self.post_url_template
         if template is None:
             return None
-        path = expand_template(template, ident=post_id)
-        return f'{self.url}{path}'
+        return self.expand_url_template(template, ident=post_id)
 
     def get_fixed_post_url(self, url):
         return url

@@ -72,13 +72,19 @@ class Instance(abc.ABC):
     def fetch_post_context(self, post_id, *, ancestors=True, descendants=True):
         pass
 
+    def expand_url_template(self, template, **subst):
+        subst = {
+            key: urlquote(value)
+            for key, value in subst.items()
+        }
+        path = expand_template(template, **subst)
+        return f'{self.url}{path}'
+
     def get_tag_url(self, tag_name):
         template = self.tag_url_template
         if template is None:
             return None
-        q_tag = urlquote(tag_name)
-        path = expand_template(template, tag=q_tag)
-        return f'{self.url}{path}'
+        return self.expand_url_template(template, tag=tag_name)
 
     def fetch_tag_info(self, tag_name):
         url = self.get_tag_url(tag_name)
