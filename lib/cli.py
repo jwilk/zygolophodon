@@ -20,7 +20,6 @@ import lib.html
 import lib.inst
 import lib.stdout
 import lib.text
-import lib.utils
 import lib.www
 
 import lib.mastodon
