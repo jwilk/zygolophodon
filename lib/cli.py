@@ -6,6 +6,7 @@ zygolophodon CLI
 '''
 
 import argparse
+import collections
 import functools
 import http.client
 import os
@@ -82,12 +83,16 @@ pint.__name__ = 'positive int'
 
 @compose('\n'.join)
 def fmt_addr_help(instance_types):
+    templates = collections.defaultdict(dict)
     for instance_type in instance_types:
         for template in instance_type.addr_parser.templates:
-            line = template
-            if instance_type is not lib.mastodon.Mastodon:
-                line += f' ({instance_type.__name__})'
-            yield line
+            templates[template][instance_type] = True
+    for template, tmpl_inst_types in templates.items():
+        line = template
+        if lib.mastodon.Mastodon not in tmpl_inst_types:
+            tmpl_inst_types = str.join(', ', (tp.__name__ for tp in tmpl_inst_types))
+            line += f' ({tmpl_inst_types})'
+        yield line
 
 def xmain():
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)

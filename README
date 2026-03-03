@@ -33,8 +33,7 @@ Usage
                        https://DOMAIN/redirect/statuses/NNNNNN
                        https://DOMAIN/users/USER
                        https://DOMAIN/users/USER/statuses/NNNNNN
-                       https://DOMAIN/notes/IDENT (Iceshrimp)
-                       https://DOMAIN/notes/IDENT (Sharkey)
+                       https://DOMAIN/notes/IDENT (Iceshrimp, Sharkey)
                        https://DOMAIN/notice/IDENT (Pleroma)
                        https://DOMAIN/tag/TAG (Pleroma)
                        https://bsky.app/profile/USER (Bluesky)
