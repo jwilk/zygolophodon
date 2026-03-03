@@ -25,6 +25,8 @@ import lib.www
 import lib.mastodon
 import lib.bluesky
 
+from lib.utils import compose
+
 __version__ = '0.1'
 
 prog = argparse.ArgumentParser().prog
@@ -78,6 +80,15 @@ def pint(s):
     raise ValueError
 pint.__name__ = 'positive int'
 
+@compose('\n'.join)
+def fmt_addr_help(instance_types):
+    for instance_type in instance_types:
+        for template in instance_type.addr_parser.templates:
+            line = template
+            if instance_type is not lib.mastodon.Mastodon:
+                line += f' ({instance_type.__name__})'
+            yield line
+
 def xmain():
     ap = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     ap.color = False
@@ -94,14 +105,7 @@ def xmain():
     )
     ap.add_argument('--user-agent', help=argparse.SUPPRESS)
     ap.add_argument('--debug-http', action='store_true', help=argparse.SUPPRESS)
-    addr_help = []
-    for instance_type in lib.inst.Instance.types:
-        for template in instance_type.addr_parser.templates:
-            line = template
-            if instance_type is not lib.mastodon.Mastodon:
-                line += f' ({instance_type.__name__})'
-            addr_help += [line]
-    addr_help = str.join('\n', addr_help)
+    addr_help = fmt_addr_help(lib.inst.Instance.types)
     ap.add_argument('addr', metavar='ADDRESS', help=addr_help)
     opts = ap.parse_args()
     if opts.debug_http:
