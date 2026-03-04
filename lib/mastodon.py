@@ -32,6 +32,8 @@ class UserAgent(lib.www.UserAgent):
             msg = data.error
         except KeyError:
             return
+        if not isinstance(msg, str):
+            return
         assert exc.msg
         exc.msg = msg
 

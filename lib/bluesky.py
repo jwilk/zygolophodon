@@ -59,6 +59,10 @@ class UserAgent(lib.www.UserAgent):
             msg = data.message
         except KeyError:
             return
+        if not isinstance(code, str):
+            return
+        if not isinstance(msg, str):
+            return
         assert exc.msg
         exc.msg = f'[{code}] {msg}'
 
