@@ -26,6 +26,7 @@ from lib.utils import (
 from lib.www import UserAgent
 
 class HTMLParser(html.parser.HTMLParser):
+
     def __init__(self):
         super().__init__()
         class state:
