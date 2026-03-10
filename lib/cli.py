@@ -101,6 +101,9 @@ def xmain():
         # https://bugs.python.org/issue9694
         ap._optionals.title = 'options'  # pylint: disable=protected-access
     ap.add_argument('--version', action=VersionAction)
+    ap.add_argument('-d', '--discover', action='store_true',
+        help='visit any URL and see what\'s underneath'
+    )
     default_limit = 40
     ap.add_argument('--limit', metavar='N', type=pint, default=default_limit,
         help=f'request at most N posts (default: {default_limit})'
@@ -121,6 +124,9 @@ def xmain():
     if '/' in addr:
         # strip URL fragment
         addr, _ = urllib.parse.urldefrag(addr)
+        if opts.discover:
+            resp = lib.www.UserAgent.get(addr)
+            addr = resp.final_url
     if not (match := lib.inst.parse_addr(addr)):
         ap.error('unsupported address')
     sys.stdout.flush()

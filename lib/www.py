@@ -114,6 +114,7 @@ class Response:
         self.data = data
         self.headers = response.headers
         self.url = url
+        self.final_url = response.url
 
     def is_json(self):
         ct = self.headers.get('Content-Type', '')

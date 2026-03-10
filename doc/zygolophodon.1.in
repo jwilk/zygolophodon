@@ -1,13 +1,14 @@
 .\" Copyright © 2025-2026 Jakub Wilk <jwilk@jwilk.net>
 .\" SPDX-License-Identifier: MIT
 
-.\" # SHA-256(help) = 6f4f12611723167e0d90775679acdf55b7a68f3db0c72fe8bfc6583b661bd29c
+.\" # SHA-256(help) = 23a9053049bde2a4ee62a26790b0638daf2eb6eeef0ef4d2f3959c72765a041d
 
 .TH ZYGOLOPHODON 1 2026-03-02 "zygolophodon {{VERSION}}"
 .SH NAME
 zygolophodon \- CLI for reading Mastodon posts
 .SH SYNOPSIS
 .SY zygolophodon
+.RB [ \-d ]
 .RB [ \-\-limit " \fIN\fP]"
 .RB [ \-\-with\-ancestors ]
 .I ADDRESS
@@ -31,6 +32,9 @@ Bluesky
 The following address schemes are supported:
 {{ADDRESS-LIST}}
 .SH OPTIONS
+.TP
+.BR "\-d" ", " "\-\-discover"
+Visit any URL, following redirects, to see what's underneath.
 .TP
 .BI "\-\-limit " N
 Request at most

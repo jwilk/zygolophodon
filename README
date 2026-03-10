@@ -18,7 +18,8 @@ Usage
 .. code:: console
 
    $ zygolophodon --help
-   usage: zygolophodon [-h] [--version] [--limit N] [--with-ancestors] ADDRESS
+   usage: zygolophodon [-h] [--version] [-d] [--limit N] [--with-ancestors]
+                       ADDRESS
 
    positional arguments:
      ADDRESS           @USER@DOMAIN
@@ -43,6 +44,7 @@ Usage
    options:
      -h, --help        show this help message and exit
      --version         show version information and exit
+     -d, --discover    visit any URL and see what's underneath
      --limit N         request at most N posts (default: 40)
      --with-ancestors  show also post ancestors
 
