@@ -19,6 +19,7 @@ import urllib.parse
 import lib.compat
 import lib.html
 import lib.inst
+import lib.opengraph
 import lib.stdout
 import lib.text
 import lib.www
@@ -127,6 +128,11 @@ def xmain():
         if opts.discover:
             resp = lib.www.UserAgent.get(addr)
             addr = resp.final_url
+            if not lib.inst.parse_addr(addr):
+                og = lib.opengraph.extract_og(resp.data)
+                og_url = og.get('url', '')
+                if '/' in og_url:
+                    addr = og_url
     if not (match := lib.inst.parse_addr(addr)):
         ap.error('unsupported address')
     sys.stdout.flush()
