@@ -26,4 +26,7 @@ max-line-length = 120
 [DESIGN]
 max-branches = 20
 
+[SIMILARITIES]
+min-similarity-lines = 10
+
 # vim:ft=dosini ts=4 sts=4 sw=4 et
