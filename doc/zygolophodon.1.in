@@ -3,7 +3,7 @@
 
 .\" # SHA-256(help) = 23a9053049bde2a4ee62a26790b0638daf2eb6eeef0ef4d2f3959c72765a041d
 
-.TH ZYGOLOPHODON 1 2026-03-02 "zygolophodon {{VERSION}}"
+.TH ZYGOLOPHODON 1 2026-03-11 "zygolophodon {{VERSION}}"
 .SH NAME
 zygolophodon \- CLI for reading Mastodon posts
 .SH SYNOPSIS
