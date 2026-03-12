@@ -39,9 +39,9 @@ def compose(f):
 
 __all__ = [
     'Dict',
-    'expand_template',
     'abstractattribute',
     'compose',
+    'expand_template',
 ]
 
 # vim:ts=4 sts=4 sw=4 et
