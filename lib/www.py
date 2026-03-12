@@ -151,9 +151,9 @@ class Response:
 urlquote = functools.partial(urllib.parse.quote, safe='')
 
 __all__ = [
+    'Response',
     'URLError',
     'UserAgent',
-    'Response',
     'urlquote',
 ]
 
