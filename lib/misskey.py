@@ -46,6 +46,7 @@ class HTMLParser(html.parser.HTMLParser):
                 st.depth = 1
 
     def handle_endtag(self, tag):
+        del tag
         st = self.z_state
         if st.depth > 0:
             st.depth -= 1
