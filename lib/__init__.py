@@ -2,4 +2,9 @@
 zygolophodon's private modules
 '''
 
-type(lambda x, /: x)  # Python >= 3.8 is required
+@(id)  # Python >= 3.9 is required
+def _():
+    pass
+del _
+
+# vim:ts=4 sts=4 sw=4 et

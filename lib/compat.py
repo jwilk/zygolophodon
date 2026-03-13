@@ -6,12 +6,8 @@ support for old Python versions
 '''
 
 import datetime
-import functools
 import re
 import sys
-
-if sys.version_info < (3, 9):
-    functools.cache = functools.lru_cache(maxsize=None)
 
 if sys.version_info >= (3, 11):
     datetime_fromisoformat = datetime.datetime.fromisoformat

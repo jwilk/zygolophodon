@@ -10,7 +10,9 @@ anonymous CLI for reading microblogging (chiefly Mastodon) posts
 
 import sys
 
-type(lambda x, /: x)  # Python >= 3.8 is required
+@(id)  # Python >= 3.9 is required
+def _():
+    pass
 
 basedir = None
 if basedir is not None:

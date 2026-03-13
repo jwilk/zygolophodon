@@ -70,6 +70,6 @@ Example
 Requirements
 ============
 
-* Python ≥ 3.8
+* Python ≥ 3.9
 
 .. vim:ft=rst ts=3 sts=3 sw=3 et
