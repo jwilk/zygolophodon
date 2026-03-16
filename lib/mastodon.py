@@ -20,6 +20,7 @@ from lib.inst import (
 
 from lib.utils import (
     Dict,
+    Promise,
     abstractattribute,
 )
 
@@ -41,6 +42,10 @@ class UserAgent(lib.www.UserAgent):
 class Mastodonoid(Instance):
 
     post_url_template = abstractattribute()
+
+    def __init__(self, url, data=None):
+        super().__init__(url, data)
+        self._user_id_to_name = {}
 
     @classmethod
     @abc.abstractmethod
@@ -85,6 +90,16 @@ class Mastodonoid(Instance):
         url = self._api_url(url)
         return UserAgent.get(url).json
 
+    def _remember_user(self, user):
+        self._user_id_to_name[user.id] = user.acct
+
+    def fetch_user_by_id(self, ident):
+        # https://docs.joinmastodon.org/methods/accounts/#get
+        # available since Mastodon v0.1
+        user = self._fetch(f'accounts/{ident}')
+        self._remember_user(user)
+        return user
+
     def fetch_user_by_name(self, name):
         # https://docs.joinmastodon.org/methods/accounts/#lookup
         # available since:
@@ -92,7 +107,9 @@ class Mastodonoid(Instance):
         # - Pleroma v2.5
         # - Akkoma v2.5
         q_name = urlquote(name)
-        return self._fetch(f'accounts/lookup?acct={q_name}')
+        user = self._fetch(f'accounts/lookup?acct={q_name}')
+        self._remember_user(user)
+        return user
 
     def _fetch_posts(self, url, *, limit, **params):
         url = self._api_url(url)
@@ -159,19 +176,34 @@ class Mastodonoid(Instance):
             context.descendants = None
         return context
 
-    def get_post_url(self, *, post_id):
+    def get_username(self, *, user_id):
+        try:
+            username = self._user_id_to_name[user_id]
+        except KeyError:
+            user = self.fetch_user_by_id(user_id)
+            username = user.acct
+        return username
+
+    def get_post_url(self, *, post_id, user_id):
         template = self.post_url_template
         if template is None:
             return None
-        return self.expand_url_template(template, ident=post_id)
+        return self.expand_url_template(template, _safe_='@',
+            user=Promise(self.get_username, user_id=user_id),
+            ident=post_id,
+        )
 
     def get_fixed_post_url(self, url):
         return url
 
     def fix_post(self, post):
+        self._remember_user(post.account)
         irt_url = None
         if post.in_reply_to_id:
-            irt_url = self.get_post_url(post_id=post.in_reply_to_id)
+            irt_url = self.get_post_url(
+                post_id=post.in_reply_to_id,
+                user_id=post.in_reply_to_account_id,
+            )
         post.in_reply_to_url = irt_url
         try:
             post.edited_at
@@ -185,7 +217,10 @@ class Mastodonoid(Instance):
             if post.url == post.reblog.uri:
                 # FIXME in Pleroma?
                 # Why is the URL unhelpful?
-                post.url = self.get_post_url(post_id=post.id)
+                post.url = self.get_post_url(
+                    post_id=post.id,
+                    user_id=post.account.id,
+                )
             if post.uri == post.reblog.uri:
                 post.uri = None
         post.url = self.get_fixed_post_url(post.url)
@@ -196,7 +231,10 @@ class Mastodonoid(Instance):
         if post.url and post.url.startswith(f'{self.url}/'):
             post.location = post.url
         else:
-            post.location = self.get_post_url(post_id=post.id)
+            post.location = self.get_post_url(
+                post_id=post.id,
+                user_id=post.account.id,
+            )
 
     def fix_posts(self, posts):
         for post in posts:

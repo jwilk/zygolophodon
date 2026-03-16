@@ -97,7 +97,7 @@ def _mastodonize_note(inst, note):
     )
     in_reply_to_id = None
     in_reply_to_url = None
-    location = inst.get_post_url(post_id=note.id)
+    location = inst.get_post_url(post_id=note.id, user_id=None)
     try:
         uri = note.uri
     except KeyError:
@@ -137,7 +137,7 @@ def _mastodonize_note(inst, note):
     )
 
 def fetch_post(inst, post_id):
-    url = inst.get_post_url(post_id=post_id)
+    url = inst.get_post_url(post_id=post_id, user_id=None)
     html_doc = UserAgent.get(url).data
     note = _extract_note(html_doc)
     return _mastodonize_note(inst, note)
