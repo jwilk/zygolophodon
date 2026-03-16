@@ -37,7 +37,11 @@ def fatal(msg):
     print(f'{prog}: {msg}', file=sys.stderr)
     sys.exit(1)
 
-def fmt_url(url):
+def fmt_url(url, *, fallback=None):
+    if not url:
+        if fallback is None:
+            raise ValueError('missing URL with no fallback')
+        return fallback
     if sys.stdout.isatty():
         return re.sub('(.)', r'_\b\1', url)
     return url
@@ -162,10 +166,8 @@ def plural(i, noun):
 
 def process_tag(instance, tag_name, *, limit):
     info = instance.fetch_tag_info(tag_name)
-    if info.url:
-        print('Location:', fmt_url(info.url))
-    else:
-        print('Location:', f'(cannot generate URL for tag {tag_name!r})')
+    errmsg = f'(cannot generate URL for tag {tag_name!r})'
+    print('Location:', fmt_url(info.url, fallback=errmsg))
     history = info.history
     if history:
         n_posts = sum(int(entry.uses) for entry in history)
@@ -262,10 +264,8 @@ def print_post(post, *, hide_in_reply_to=False):
     if url and url != post.location:
         print('Origin:', fmt_url(url))
     if post.in_reply_to_id and not hide_in_reply_to:
-        if post.in_reply_to_url:
-            print('In-Reply-To:', fmt_url(post.in_reply_to_url))
-        else:
-            print('In-Reply-To:', f'(cannot generate URL for post id {post.in_reply_to_id})')
+        errmsg = f'(cannot generate URL for post id {post.in_reply_to_id})'
+        print('In-Reply-To:', fmt_url(post.in_reply_to_url, fallback=errmsg))
     if post.pinned:
         pinned = post.pinned
         pin_comment = []
