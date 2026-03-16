@@ -15,6 +15,7 @@ from lib.models import (
 )
 
 from lib.utils import (
+    Promise,
     abstractattribute,
     expand_template,
 )
@@ -73,8 +74,11 @@ class Instance(abc.ABC):
         pass
 
     def expand_url_template(self, template, _safe_='', **subst):
+        def _urlquote(s):
+            s = Promise.deliver(s)
+            return urlquote(s, safe=_safe_)  # pylint: disable=redundant-keyword-arg
         subst = {
-            key: urlquote(value, safe=_safe_)  # pylint: disable=redundant-keyword-arg
+            key: Promise(_urlquote, value)
             for key, value in subst.items()
         }
         path = expand_template(template, **subst)
