@@ -27,7 +27,10 @@ import lib.www
 import lib.mastodon
 import lib.bluesky
 
-from lib.utils import compose
+from lib.utils import (
+    compose,
+    Promise,
+)
 
 __version__ = '0.1'
 
@@ -38,6 +41,7 @@ def fatal(msg):
     sys.exit(1)
 
 def fmt_url(url, *, fallback=None):
+    url = Promise.deliver(url)
     if not url:
         if fallback is None:
             raise ValueError('missing URL with no fallback')
