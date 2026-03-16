@@ -256,7 +256,7 @@ class Mastodon(Mastodonoid):
 
     tag_url_template = '/tags/TAG'
 
-    post_url_template = '/statuses/IDENT'
+    post_url_template = '/@USER/IDENT'
 
     post_id_regexp = '[0-9]{1,18}'
     # Source: lib/mastodon/snowflake.rb
