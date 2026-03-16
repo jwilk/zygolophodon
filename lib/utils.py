@@ -34,10 +34,11 @@ def expand_template(template, **subst):
         key = match.group()
         lkey = key.lower()
         try:
-            return subst[lkey]
+            value = subst[lkey]
         except KeyError:
             msg = f'cannot expand {key} in template {template!r}'
             raise InternalError(msg) from None
+        return Promise.deliver(value)
     return re.sub('[A-Z]+', repl, template)
 
 def abstractattribute():
