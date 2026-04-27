@@ -199,7 +199,13 @@ class Mastodonoid(Instance):
         return url
 
     def fix_post(self, post):
-        self._remember_user(post.account)
+        account = post.account
+        if account:
+            self._remember_user(account)
+        else:
+            # FIXME in Akkoma?
+            # Why is the account info missing for some posts?
+            account = Dict(id=None)
         irt_url = None
         if post.in_reply_to_id:
             irt_url = self.get_post_url(
@@ -221,7 +227,7 @@ class Mastodonoid(Instance):
                 # Why is the URL unhelpful?
                 post.url = self.get_post_url(
                     post_id=post.id,
-                    user_id=post.account.id,
+                    user_id=account.id,
                 )
             if post.uri == post.reblog.uri:
                 post.uri = None
@@ -235,7 +241,7 @@ class Mastodonoid(Instance):
         else:
             post.location = self.get_post_url(
                 post_id=post.id,
-                user_id=post.account.id,
+                user_id=account.id,
             )
 
     def fix_posts(self, posts):
