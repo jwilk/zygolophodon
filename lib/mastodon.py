@@ -30,6 +30,8 @@ class UserAgent(lib.www.UserAgent):
 
     @classmethod
     def handle_json_error(cls, exc, data):
+        if not isinstance(data, dict):
+            return
         try:
             msg = data.error
         except KeyError:
