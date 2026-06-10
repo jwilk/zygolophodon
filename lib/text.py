@@ -95,7 +95,7 @@ def wrap_line(line, indent='', protect=None):
         prot_re = re.compile(
             '\N{SUB}+|'
             + re.escape(prot_start)
-            + '(.*?)'
+            + '(.+?)'
             + re.escape(prot_end)
         )
         def subst(match):
