@@ -69,13 +69,15 @@ class HTMLParser(html.parser.HTMLParser):
                     assert '\n' not in text
                     st.text += f'\N{STX}{text}\N{ETX}'
                     st.footnotes[text] = href
-                else:
+                elif href:
                     if href in {text, f'http://{text}', f'https://{text}'}:
                         text = ''
                     else:
                         text = f'[{text}]'
                     assert '\n' not in text
                     st.text += f'{text}<\N{STX}{href}\N{ETX}>'
+                else:
+                    st.text += text
                 st.a_href = ''
                 st.a_text = ''
             return
