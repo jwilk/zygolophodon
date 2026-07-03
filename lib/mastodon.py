@@ -179,6 +179,8 @@ class Mastodonoid(Instance):
         return context
 
     def get_username(self, *, user_id):
+        if not isinstance(user_id, str):
+            raise TypeError
         try:
             username = self._user_id_to_name[user_id]
         except KeyError:
