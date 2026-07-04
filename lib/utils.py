@@ -28,12 +28,16 @@ class Promise:
 
 class TemplateVarError(Exception):
 
-    def __init__(self, *, template, var):
+    def __init__(self, *, template, var, tp=None):
         self.template = template
         self.var = var
+        self.tp = tp
 
     def __str__(self):
-        return f'cannot expand {self.var} in template {self.template!r}'
+        msg = f'cannot expand {self.var} in template {self.template!r}'
+        if self.tp is not None:
+            msg += f'; expected str instance, {self.tp.__qualname__} found'
+        return msg
 
 def expand_template(template, **subst):
     def repl(match):
@@ -42,8 +46,11 @@ def expand_template(template, **subst):
         try:
             value = subst[lvar]
         except KeyError:
-            raise TemplateVarError(template=template, var=var)
-        return Promise.deliver(value)
+            raise TemplateVarError(template=template, var=var) from None
+        value = Promise.deliver(value)
+        if not isinstance(value, str):
+            raise TemplateVarError(template=template, var=var, tp=type(value))
+        return value
     return re.sub('[A-Z]+', repl, template)
 
 def abstractattribute():
@@ -60,6 +67,7 @@ def compose(f):
 __all__ = [
     'Dict',
     'Promise',
+    'TemplateVarError',
     'abstractattribute',
     'compose',
     'expand_template',
