@@ -12,9 +12,6 @@ import re
 class Dict(dict):
     __getattr__ = dict.__getitem__
 
-class InternalError(RuntimeError):
-    pass
-
 class Promise:
 
     def __init__(self, fn, *args, **kwargs):
@@ -29,6 +26,15 @@ class Promise:
             return self._deliver()
         return self
 
+class TemplateVarError(Exception):
+
+    def __init__(self, *, template, var):
+        self.template = template
+        self.var = var
+
+    def __str__(self):
+        return f'cannot expand {self.var} in template {self.template!r}'
+
 def expand_template(template, **subst):
     def repl(match):
         var = match.group()
@@ -36,8 +42,7 @@ def expand_template(template, **subst):
         try:
             value = subst[lvar]
         except KeyError:
-            msg = f'cannot expand {var} in template {template!r}'
-            raise InternalError(msg) from None
+            raise TemplateVarError(template=template, var=var)
         return Promise.deliver(value)
     return re.sub('[A-Z]+', repl, template)
 
