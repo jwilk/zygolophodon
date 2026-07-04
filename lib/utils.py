@@ -31,12 +31,12 @@ class Promise:
 
 def expand_template(template, **subst):
     def repl(match):
-        key = match.group()
-        lkey = key.lower()
+        var = match.group()
+        lvar = var.lower()
         try:
-            value = subst[lkey]
+            value = subst[lvar]
         except KeyError:
-            msg = f'cannot expand {key} in template {template!r}'
+            msg = f'cannot expand {var} in template {template!r}'
             raise InternalError(msg) from None
         return Promise.deliver(value)
     return re.sub('[A-Z]+', repl, template)
