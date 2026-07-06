@@ -44,6 +44,7 @@ class UserAgent(lib.www.UserAgent):
 class Mastodonoid(Instance):
 
     post_url_template = abstractattribute()
+    alt_post_url_template = None
 
     def __init__(self, url, data=None):
         super().__init__(url, data)
@@ -189,13 +190,28 @@ class Mastodonoid(Instance):
         return username
 
     def get_post_url(self, *, post_id, user_id):
-        template = self.post_url_template
-        if template is None:
-            return None
-        return self.expand_url_template(template, _safe_='@',
-            user=Promise(self.get_username, user_id=user_id),
-            ident=post_id,
-        )
+        def get_username(user_id):
+            if user_id is None:
+                return None
+            return self.get_username(user_id=user_id)
+        exc = None
+        for template in self.post_url_template, self.alt_post_url_template:
+            if template is None:
+                break
+            exc = None
+            try:
+                return self.expand_url_template(template, _safe_='@',
+                    user=Promise(get_username, user_id),
+                    ident=post_id,
+                )
+            except lib.utils.TemplateVarError as _exc:
+                if _exc.var == 'USER' and _exc.tp is type(None):
+                    exc = _exc
+                    continue
+                raise
+        if exc:
+            raise exc
+        return None
 
     def get_fixed_post_url(self, url):
         return url
