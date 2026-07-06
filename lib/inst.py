@@ -76,7 +76,11 @@ class Instance(abc.ABC):
     def expand_url_template(self, template, _safe_='', **subst):
         def _urlquote(s):
             s = Promise.deliver(s)
-            return urlquote(s, safe=_safe_)  # pylint: disable=redundant-keyword-arg
+            if isinstance(s, str):
+                return urlquote(s, safe=_safe_)  # pylint: disable=redundant-keyword-arg
+            else:
+                # provoke type error down further
+                return s
         subst = {
             key: Promise(_urlquote, value)
             for key, value in subst.items()
