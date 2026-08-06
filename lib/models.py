@@ -41,6 +41,7 @@ class Post:
     edited_at: typing.Optional[datetime.datetime] = None
     language: typing.Optional[str] = None
     reblog: typing.Optional['Post'] = None
+    poll: typing.Optional[dict] = None
     media_attachments: typing.Optional[list] = None
     pinned: typing.Optional[bool] = None
 

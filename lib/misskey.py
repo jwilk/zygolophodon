@@ -132,6 +132,7 @@ def _mastodonize_note(inst, note):
         edited_at=edited_at,
         # FIXME? language=
         reblog=reblog,
+        # FIXME? poll=
         media_attachments=atts,
         # FIXME? pinned=
     )

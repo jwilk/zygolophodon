@@ -298,6 +298,13 @@ def print_post(post, *, hide_in_reply_to=False):
         text = fmt_html(post.content)
         print(text)
     print()
+    if post.poll:
+        for opt in post.poll.options:
+            text = f'({opt.votes_count}) {opt.title}'
+            text = lib.text.wrap_text(text)
+            for line in text:
+                print(line)
+        print()
     paperclip = lib.text.symbols.paperclip
     for att in post.media_attachments or ():
         # TODO? Render the images with chafa?
