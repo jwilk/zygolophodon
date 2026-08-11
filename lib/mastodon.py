@@ -238,6 +238,12 @@ class Mastodonoid(Instance):
             # * FIXME in Pleroma?
             #   Why is the attribute missing for reblogs?
             post.edited_at = None
+        try:
+            post.poll
+        except KeyError:
+            # FIXME in Pleroma?
+            # Why is the attribute missing for reblogs?
+            post.poll = None
         if post.reblog:
             self.fix_post(post.reblog)
             if post.url == post.reblog.uri:
